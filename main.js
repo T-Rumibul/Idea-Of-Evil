@@ -1,7 +1,10 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const config = require('./config.json')
+const commands = require('./commands.js');
+const commmandsDescription = require('./commandsDesctiprion.js')
 delete config.default;
+delete commmandsDescription.default;
 client.login(config.token);
 // Modules
 const welcomer = require('./modules/welcomer.js')
@@ -29,15 +32,40 @@ if (message.content.indexOf(config.prefix) !== 0)
   if (args != undefined) {
     cmd = args.shift();
   }
+if(!commands.hasOwnProperty(cmd) && (!cmd === 'help' || cmd === 'h')) {
+return
+}
+if(cmd === 'help' || cmd === 'h') {
+    switch(args[0]) {
+        case undefined:
+            commmandsDescription.errorResponse(message)
+            break;
+        case 'stats':
+            commmandsDescription.stats(message)
+            break;
+        case "cc":
+        case "changecolor": 
+            commmandsDescription.changecolor(message)
+            break;
+        default:
+            commmandsDescription.errorResponse(message)
+            break;
+    }
 
 
+  
+    
+}
+if (cmd === 'changecolor' || cmd === 'cc') {
+    if (args.length < 1) {
+       await message.channel.send("WRONG!")
+        return 0;
+    }
+    profile.addcolor(message, args[0]);
+}
 
 if (cmd === 'stats') {
-    if(args.length == 0) {
-    await profile.stats(message.member, message)
-    } else if (message.mentions.members.first()) {
-      await profile.stats(message.mentions.members.first(), message)
-    }
+    commands.stats(args[0], message)
 }
 
 
@@ -53,13 +81,7 @@ if (cmd === 'top') {
         profile.topExp(message.member, message)
     }
 }
-if (cmd === 'changecolor' || 'cc') {
-    if (args.length < 1) {
-        message.channel.send("WRONG!")
-        return 0;
-    }
-    profile.addcolor(message, args[0]);
-}
+
 if (cmd === 'clearoldemojis') {
     profile.clearOldEmoji(message)
 }

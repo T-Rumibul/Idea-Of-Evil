@@ -248,7 +248,7 @@ module.exports.stats = async (member, message) => {
                 let emoji_list = '';
                 for (let i = 0; i < sortable.length; i++) {
                     emoji_list += ' ' + sortable[i][0]
-                    if (i == 2) {
+                    if (i == 5) {
                         break
                     }
                 }
