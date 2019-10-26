@@ -37,7 +37,7 @@ changecolor: async (message) =>{
 },
 errorResponse: async (message)=> {
   defaultEmbed.embed.color = 0xd90218;
-  defaultEmbed.embed.fields
+  defaultEmbed.embed.title = `Такой комманды не существует или вы ввели её непрвильно`;
   defaultEmbed.embed.fields[0].value = `${config.prefix}help [command]\n${config.prefix}h [command]`;
    await message.channel.send( 
     defaultEmbed
