@@ -5,7 +5,7 @@ const adapter = new FileSync('db.json')
 const db = low(adapter)
 const usersDB = db.get('users')
 const guildDB = db.get('guild')
-
+const Utility = require('./Utility.js')
 function updateDB(id, value) {
     usersDB.find({
         userID: id
@@ -25,7 +25,14 @@ async function addexp (member, message) {
             })
                    
 }
-
+module.exports.addmoderator = async(message) => {
+    if(Utility.isAdmin(message.member)) {
+       let member = message.mentions.members.first()
+       guildDB.push({ id: guildDB.size().value() + 1, userID: member.id, exp: 25, lvl:1, prestige:0, emoji:[{}] }).write()
+    } else {
+        message.reply(`У вас нет прав для использования этой комманды!`)
+    }
+}
 module.exports.emoji_use = async(member, message) => {
     if (emoji_wait_list.indexOf(member.id) === -1) {
         if (message.content.search(/<:\w+:\d+>/g) != -1) {
