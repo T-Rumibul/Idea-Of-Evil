@@ -6,9 +6,9 @@
   "author": "Ryner",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "^11.4.2",
+    "discord.js": "^11.5.1",
     "forever-monitor": "^1.7.1",
-    "jimp": "^0.6.0",
+    "jimp": "^0.8.5",
     "lodash": "^4.17.15",
     "lowdb": "^1.0.0"
   }
