@@ -3,18 +3,13 @@
   "version": "0.0.1",
   "description": "everthing",
   "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Ryner",
   "license": "MIT",
   "dependencies": {
     "discord.js": "^11.4.2",
-    "discord.js-commando": "^0.10.0",
+    "forever-monitor": "^1.7.1",
     "jimp": "^0.6.0",
     "lodash": "^4.17.15",
-    "lowdb": "^1.0.0",
-    "nodemon": "^1.19.4",
-    "sqlite": "^3.0.3"
+    "lowdb": "^1.0.0"
   }
 }
