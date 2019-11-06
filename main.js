@@ -1,7 +1,6 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const config = require('./config.json')
-const commands = require('./commands.js');
 const commmandsDescription = require('./commandsDesctiprion.js')
 
 const fs = require('fs');
@@ -22,9 +21,12 @@ client.login(config.token);
 // Modules
 const welcomer = require('./modules/welcomer.js')
 const profile = require('./modules/profile.js')
+const Utility = require('./modules/Utility.js')
 // End Modules
+let album_id = ['eCOuQ', 'PS9uP', 'Rs6Vt', 'Wr3tS', 'e0JJC', '7R5sa', 'B84oi']
 client.on('ready', async () => {
     console.log(client.user.username+' ready')
+     //Utility.putAllAlbumImagesIntoConfig(album_id)
 })
 
 client.on('guildMemberAdd', async (member) => {
@@ -65,6 +67,8 @@ if (command.args && !args.length) {
 if (command.guildOnly && message.channel.type !== 'text') {
             return message.reply('Вы не можете использовать команды в ЛС.');
     }
+//Admin commands
+if(command.adminonly && !Utility.isAdmin(message.member)) return message.reply('Для использования этой команды нужно иметь права администратора.')
 //Cooldown for commands
     if (!cooldowns.has(command.name)) {
         cooldowns.set(command.name, new Discord.Collection());
@@ -79,7 +83,10 @@ if (command.guildOnly && message.channel.type !== 'text') {
     
         if (now < expirationTime) {
             const timeLeft = (expirationTime - now) / 1000;
-            return message.reply(`Осталось ${timeLeft.toFixed(1)} секунд до повтороного использования \`${command.name}\`.`);
+            let reply = await message.reply(`Осталось ${timeLeft.toFixed(1)} секунд до повтороного использования \`${command.name}\`.`);
+            await message.delete()
+            await reply.delete(timeLeft * 1000)
+            return 
         }
     }
 try {

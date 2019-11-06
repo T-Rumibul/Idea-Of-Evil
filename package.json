@@ -10,6 +10,8 @@
     "forever-monitor": "^1.7.1",
     "jimp": "^0.8.5",
     "lodash": "^4.17.15",
-    "lowdb": "^1.0.0"
+    "lowdb": "^1.0.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5"
   }
 }

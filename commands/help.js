@@ -7,30 +7,26 @@ module.exports = {
     group: 'Utility',
 	cooldown: 1,
     guildOnly: true,
-
+    usage: "<command name>",
 	execute(message, args) {
         const { commands } = message.client;
         let Embed = new RichEmbed();
         Embed.setAuthor(message.client.user.username, message.client.user.avatarURL)
         if (!args.length) {
         Embed.addField('Список всех команд:', '\n\u200b', false)
-        let skip = true;
-        commands.map(command => { 
-            Embed.fields.forEach(field => {       
-                if(field.name == `**${command.group}**`) {
-                    field.value +=  `, \`${command.name}\``
-                    skip = true
-                    console.log(skip)
-                    return;
-                }
-                skip=false
+        let commands_list = {
+
+        };
+        
+        commands.forEach(command => { //сортировка групп отдельно от комманд, чтобы не было дубликатов при выводе
+            if(!commands_list[command.group]) commands_list[command.group] = [` \`${command.name}\``];
+            else commands_list[command.group].push(` \`${command.name}\``)
+            
             })
-               
-            if(!skip) {
-                Embed.addField(`**${command.group}**`, `\`${command.name}\``, false)
-            }
-            })
-       
+        let groups = Object.keys(commands_list) 
+        groups.forEach(group => {
+            Embed.addField(`**${group}**`, `${commands_list[group].join(', ')}`, false)
+        })
         Embed.addField(`**Пример:**`, `\nИспользуйте ${prefix}help [команда], чтобы получить больше информации об определённой команде`, false)
         
             return message.channel.send(Embed)
