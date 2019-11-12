@@ -35,7 +35,6 @@ module.exports = {
 
 		}
 		message.channel.send(embed)
-		message.delete()
 	}
 	},
 };

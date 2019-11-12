@@ -16,7 +16,7 @@ for (const file of commandFiles) {
 }
 delete config.default;
 delete commmandsDescription.default;
-client.login(config.token);
+client.login(config.token_dev);
 
 // Modules
 const welcomer = require('./modules/welcomer.js')

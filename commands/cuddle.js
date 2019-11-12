@@ -5,9 +5,8 @@ const FileSync = require('lowdb/adapters/FileSync')
 const adapter = new FileSync('config.json')
 const db = low(adapter)
 const imagesDB = db.get('images')
-
 module.exports = {
-	name: 'hug',
+	name: 'cuddle',
 	description: '',
 	aliases: [],
 	cooldown: 5,
@@ -15,7 +14,7 @@ module.exports = {
 	group: "Fun",
 	usage: "<mention>",
 	async execute(message, args) {
-		let links = imagesDB.find({type: 'hugs'}).value().links
+		let links = imagesDB.find({type: 'cuddle'}).value().links
 		if(links) {
 			function random(max) {
 				return Math.floor(Math.random() * Math.floor(max))
@@ -24,18 +23,19 @@ module.exports = {
 		let embed = new RichEmbed();
 		let mention = message.mentions.members.first()
 		embed.setImage(link)
+		
 		if(mention) {
-		let answers = [`**Wow! <@${message.member.id}> has hugged ${mention}, it's cute**`, `**<@${message.member.id}> has hugged ${mention}, everything will be alright**`, `**<@${message.member.id}> has hugged ${mention}, is that all? hehe**`, `**<@${message.member.id}> has hugged tight ${mention}**`]
-			
+		let answers = [`** *Ow* <@${message.member.id}> cuddles ${message.mentions.members.first()}**`, `**<@${message.member.id}> cuddles ${message.mentions.members.first()}, wow interesting**`, `**<@${message.member.id}> cuddling ${message.mentions.members.first()} don't be upset :3**`]	
 		embed.setDescription(answers[random(answers.length)])
 		
 		
 		} else {
-			let answers = [`**Oh <@${message.member.id}> there your hug :3**`, `**I am glad to hug you <@${message.member.id}> <3**`]
+			let answers = [`**<@${message.member.id}> cuddle special for you (´ω｀)**`, `**Don't worry <@${message.member.id}> ( ◜‿◝ ) **`]
 			embed.setDescription(answers[random(answers.length)])
 
 		}
 		message.channel.send(embed)
+
 	}
 	},
 };
