@@ -60,14 +60,8 @@ reactConfirm: async (message, member)=> {
     const filter = (reaction, user) => {
         return ['✅', '❌'].includes(reaction.emoji.name) && member.id === user.id;
     };
-    await message.awaitReactions(filter, { max: 1, time: 60000, errors: ['time'] })
-        .then(collected => {
-            const reaction = collected.first();
-            if(reaction.emoji.name == '✅') return confirm = true
-            else if(reaction.emoji.name == '❌') return confirm = false
-        })
-        .catch(collected => {
-        });
+    let result = await message.awaitReactions(filter, { max: 1, time: 60000, errors: ['time'] })
+    console.log(result)
     return confirm;
     
 }

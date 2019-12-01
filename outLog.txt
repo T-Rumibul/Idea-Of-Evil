@@ -1,16 +1,36 @@
-Idea of Evil ready
-Added 226 exp to Ruiner
-79077
-Added 123 exp to Akari
-97415
-Member deleted from wait list Ruiner
-Added 226 exp to Ruiner
-74116
-[ '<:usiki:547854117196791838>' ]
-Added emoji use
-1510
-Member deleted from emoji wait list Ruiner
-Member deleted from wait list Akari
-Added 123 exp to Akari
-89508
+Dev IOE ready
+Added 227.1 exp to Ruiner
+77797
+Collection [Map] {
+  '✅' => MessageReaction {
+    message:
+     Message {
+       channel: [TextChannel],
+       deleted: false,
+       id: '643920335397191730',
+       type: 'DEFAULT',
+       content:
+        '<@231449604711907328>, Вы уверены в своем выборе? <#556450883165224971>',
+       author: [ClientUser],
+       member: [GuildMember],
+       pinned: false,
+       tts: false,
+       nonce: null,
+       system: false,
+       embeds: [],
+       attachments: Collection [Map] {},
+       createdTimestamp: 1573592971420,
+       editedTimestamp: null,
+       reactions: [Collection],
+       mentions: [MessageMentions],
+       webhookID: null,
+       hit: null,
+       _edits: [] },
+    me: true,
+    count: 2,
+    users:
+     Collection [Map] {
+       '413052227750461440' => [ClientUser],
+       '231449604711907328' => [User] },
+    _emoji: ReactionEmoji { reaction: [Circular], name: '✅', id: null } } }
 Member deleted from wait list Ruiner

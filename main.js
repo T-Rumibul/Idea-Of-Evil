@@ -23,7 +23,7 @@ const welcomer = require('./modules/welcomer.js')
 const profile = require('./modules/profile.js')
 const Utility = require('./modules/Utility.js')
 // End Modules
-let album_id = ['eCOuQ', 'PS9uP', 'Rs6Vt', 'Wr3tS', 'e0JJC', '7R5sa', 'B84oi']
+let album_id = ['eCOuQ', 'PS9uP', 'Rs6Vt', 'Wr3tS', 'e0JJC', '7R5sa', 'B84oi', 'ItSDDZH']
 client.on('ready', async () => {
     console.log(client.user.username+' ready')
      //Utility.putAllAlbumImagesIntoConfig(album_id)
