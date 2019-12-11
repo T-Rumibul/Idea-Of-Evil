@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const config = require('./config.json')
+const {token, token_dev} = require('./tokens.json')
 const commmandsDescription = require('./commandsDesctiprion.js')
 
 const fs = require('fs');
@@ -16,7 +17,7 @@ for (const file of commandFiles) {
 }
 delete config.default;
 delete commmandsDescription.default;
-client.login(config.token_dev);
+client.login(token_dev);
 
 // Modules
 const welcomer = require('./modules/welcomer.js')

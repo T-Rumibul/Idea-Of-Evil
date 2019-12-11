@@ -4,6 +4,7 @@ const FileSync = require('lowdb/adapters/FileSync')
 const adapter = new FileSync('config.json')
 const db = low(adapter)
 const imagesDB = db.get('images')
+const {imgur_clientID} = require('../tokens.json')
 module.exports = {
      isAdmin: (member) => {
     if(member.hasPermission("ADMINISTRATOR")) {
@@ -18,7 +19,7 @@ getAlbumImages: (album_id) => {
     var options = {
         uri: `https://api.imgur.com/3/album/${album_id}/images`,
         headers: {
-            'Authorization': 'Client-ID 552f3a1b35f2d87'
+            'Authorization': `Client-ID ${imgur_clientID}`
         },
         json: true // Automatically parses the JSON string in the response
     };
@@ -31,7 +32,7 @@ getAlbumImages: (album_id) => {
 putAllAlbumImagesIntoConfig: async (album_id) => {
     let options = {
         headers: {
-            'Authorization': 'Client-ID 552f3a1b35f2d87'
+            'Authorization': `Client-ID ${imgur_clientID}`
         },
         json: true // Automatically parses the JSON string in the response
     };
