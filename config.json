@@ -1,8 +1,5 @@
 {
-  "token": "NTU2MjE0MDA0OTQzNTUyNTEy.XbLFJA.UX8r8ppSRSWJRRdHP2ZhpbjjGNY",
-  "token_dev": "NDEzMDUyMjI3NzUwNDYxNDQw.XcGWkw.gPy6lLafoZLBqQItMSJApqMoTCc",
-  "prefix": "+",
-  "youtubekey": "AIzaSyBIcPwyvEcUfT72_rwWeUWmGRPUS45yFHs",
+  "prefix": "+", 
   "welcome_channel": "413379710333222913",
   "statistic_members_channel": "558695574740664341",
   "statistic_messages_channel": "558695648220807169",

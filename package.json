@@ -1,17 +1,47 @@
 {
-  "name": "ideaofevilbot",
-  "version": "0.0.1",
-  "description": "everthing",
-  "main": "main.js",
-  "author": "Ryner",
-  "license": "MIT",
-  "dependencies": {
-    "discord.js": "^11.5.1",
-    "forever-monitor": "^1.7.1",
-    "jimp": "^0.8.5",
-    "lodash": "^4.17.15",
-    "lowdb": "^1.0.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.5"
-  }
+    "name": "ideaofevilbot",
+    "version": "1.0.0",
+    "description": "",
+    "author": "RynerNO",
+    "license": "MIT",
+    "scripts": {
+        "dev": "set DEBUG=BOT:* && nodemon --ignore local_db.json --exec ts-node -r tsconfig-paths/register src/bot/client.ts",
+        "start": "set DEBUG=BOT:* && ts-node -r tsconfig-paths/register src/bot/client.ts",
+        "compile": "tsc"
+    },
+    "dependencies": {
+        "@types/lowdb": "^1.0.9",
+        "@types/mongoose": "^5.10.1",
+        "@types/uniqid": "^5.2.0",
+        "command-handler-discord": "^2.0.9",
+        "discord.js": "^12.4.1",
+        "dotenv": "^8.2.0",
+        "jimp": "^0.8.5",
+        "lodash": "^4.17.15",
+        "lowdb": "^1.0.0",
+        "mongoose": "^5.10.15",
+        "request": "^2.88.0",
+        "request-promise": "^4.2.5",
+        "ts-node": "^8.10.2",
+        "typescript": "^3.9.7",
+        "uniqid": "^5.2.0",
+        "tsconfig-paths": "^3.9.0"
+    },
+    "devDependencies": {
+        "@types/debug": "^4.1.5",
+        "@types/node": "^14.0.27",
+        "@types/ws": "^7.2.6",
+        "@typescript-eslint/eslint-plugin": "^3.9.0",
+        "benchmark": "^2.1.4",
+        "debug": "^4.3.1",
+        "eslint": "6.8.0",
+        "eslint-config-airbnb-typescript": "^9.0.0",
+        "eslint-config-prettier": "^6.11.0",
+        "eslint-plugin-eslint-comments": "^3.2.0",
+        "eslint-plugin-import": "2.20.1",
+        "eslint-plugin-prettier": "^3.1.3",
+        "eslint-plugin-promise": "^4.2.1",
+        "nodemon": "^2.0.4",
+        "prettier": "^2.0.5"
+    }
 }

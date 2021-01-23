@@ -1,0 +1,11 @@
+{
+  "_id": "5fb86fa1f969803b58e93c78",
+  "ID": 408654092467044350,
+  "config": {
+    "prefix": "&",
+    "modRoles": [],
+    "adminRoles": [],
+    "welcome_channel": "413379710333222913"
+  },
+  "__v": 0
+}
