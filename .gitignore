@@ -5,4 +5,4 @@ tokens.json
 .env
 yarn.lock
 local_db.json
-yarn-erroe.log
+yarn-error.log
