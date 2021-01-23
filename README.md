@@ -1,0 +1,2 @@
+# Idea-Of-Evil
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/410b50c8ea6f417f851523d88d1bfd1f)](https://app.codacy.com/gh/RynerNO/Idea-Of-Evil?utm_source=github.com&utm_medium=referral&utm_content=RynerNO/Idea-Of-Evil&utm_campaign=Badge_Grade_Settings)
