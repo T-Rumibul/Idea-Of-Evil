@@ -1,7 +1,8 @@
 import { IOEClient } from '@bot/core/IOEClient';
-import { GuildMember } from 'discord.js';
+import { Presence } from 'discord.js';
 
-export function Emit(member: GuildMember, client: IOEClient) {
+export function Emit(oldPresence: Presence, newPresence: Presence, client: IOEClient) {
+	const member = newPresence.member;
 	if (member.user.bot) return;
 	client.modules.Welcomer.sendWelcomeMesssageTrigger(member, client);
 }

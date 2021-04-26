@@ -1,5 +1,5 @@
 import { createHandler, CommandHandler } from 'command-handler-discord';
-import { Client, Message } from 'discord.js';
+import { Message } from 'discord.js';
 import { readdirSync } from 'fs';
 import path from 'path';
 import { IOEClient } from '@bot/core/IOEClient';
@@ -67,6 +67,8 @@ export class Commands extends BaseModule {
 				Client: client,
 			});
 		} catch (e) {
+			console.log(typeof e === 'string' && e == 'Command not found.');
+			if (typeof e === 'string' && e == 'Command not found.') return;
 			this.log('Error: %O', e);
 		}
 	}

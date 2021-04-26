@@ -12,10 +12,22 @@
     "sourceMap": true,
     "baseUrl": "./",
     "paths": {
-      "@bot/*": [ "src/bot/*" ]
-  }
+      "@bot/*": [
+        "src/bot/*"
+      ],
+      "@api/*": [
+        "src/api/*"
+      ],
+      "@src/*": [
+        "src/minecraftApi/*"
+      ]
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"],
-  
-  }
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ],
+}

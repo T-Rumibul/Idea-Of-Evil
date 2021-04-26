@@ -1,5 +1,4 @@
-import { CommandHandler } from 'command-handler-discord';
-import { IOEClient } from './IOEClient';
+import { getLogger } from '@bot/utils/Logger';
 import Debug from 'debug';
 export interface BaseModule {
 	name: string;
@@ -10,10 +9,6 @@ export class BaseModule {
 	private debugger: Debug.Debugger;
 	constructor(name: string) {
 		this.name = name;
-		this.debugger = Debug(`BOT:Module:${this.name}`);
-	}
-	public log(string: string, payload: any = '') {
-		if (!this.debugger.enabled) Debug.enable(`BOT:Module:${this.name}`);
-		this.debugger(string, payload);
+		this.log = getLogger(`BOT:Module:${this.name}`);
 	}
 }

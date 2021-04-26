@@ -17,7 +17,7 @@ export class Welcomer extends BaseModule {
 	constructor() {
 		super(NAME);
 	}
-	async sendAutoWelcomeMesssage(member: GuildMember, client: IOEClient) {
+	async sendWelcomeMesssageTrigger(member: GuildMember, client: IOEClient) {
 		if (this.disabled) return;
 		const channel = member.guild.channels.cache.get(await client.getWelcomeChannel());
 		if (!channel || !channel.isText()) return;

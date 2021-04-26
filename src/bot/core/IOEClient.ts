@@ -1,10 +1,12 @@
-import { Client, Collection } from 'discord.js';
+import { Client, GuildMember, Message, Presence } from 'discord.js';
 import { Utils } from './Utils';
 import { DB, DBCls } from './DB';
 import { commands, Commands } from '@bot/modules/Commands';
 import { Welcomer, welcomer } from '@bot/modules/Welcomer';
+import MessageEvent from '@bot/events/Message';
+import GuildMemberAdd from '@bot/events/GuildMemberAdd';
+import PresenceUpdate from '@bot/events/PresenceUpdate';
 import { BaseClient } from './BaseClient';
-import Debug from 'debug';
 
 export interface IOEClient extends Client {
 	utils: Utils;
@@ -36,6 +38,20 @@ export class IOEClient extends BaseClient {
 		const welcomeChannel = await this.DB.get('config', 'welcome_channel');
 		return welcomeChannel;
 	}
+
+	private registerEventListeners() {
+		this.on('message', async (message: Message) => {
+			MessageEvent(message, this);
+		});
+		this.on('guildMemberAdd', async (member: GuildMember) => {
+			GuildMemberAdd(member, this);
+		});
+
+		this.on('presenceUpdate', async (oldPresence: Presence, newPresence: Presence) => {
+			PresenceUpdate(oldPresence, newPresence, this);
+		});
+	}
+
 	private async init() {
 		this.log('Initialization');
 		this.utils = new Utils();
@@ -53,5 +69,7 @@ export class IOEClient extends BaseClient {
 		this.modules.Command.Parser.setPrefix(prefix);
 		this.log('Setting up settings from DB finished');
 		this.log('Initialization Completed');
+
+		this.registerEventListeners();
 	}
 }
