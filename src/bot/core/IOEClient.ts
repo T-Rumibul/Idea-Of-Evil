@@ -6,20 +6,24 @@ import { Welcomer, welcomer } from '@bot/modules/Welcomer';
 import MessageEvent from '@bot/events/Message';
 import GuildMemberAdd from '@bot/events/GuildMemberAdd';
 import PresenceUpdate from '@bot/events/PresenceUpdate';
-import { BaseClient } from './BaseClient';
+import { getLogger } from '@bot/utils/Logger';
+import { presenceWatcher, PresenceWatcher } from '@bot/modules/PresenceWatcher';
 
 export interface IOEClient extends Client {
 	utils: Utils;
 	DB: DBCls;
+	log(string: string, payload?: any): void;
 	modules: {
 		Command: Commands;
 		Welcomer: Welcomer;
+		PresenceWatcher: PresenceWatcher;
 	};
 }
 
-export class IOEClient extends BaseClient {
+export class IOEClient extends Client {
 	constructor() {
 		super();
+		this.log = getLogger('BOT:Client');
 		this.init();
 	}
 	public async setPrefix(string: string) {
@@ -59,6 +63,7 @@ export class IOEClient extends BaseClient {
 		this.modules = {
 			Command: commands(),
 			Welcomer: welcomer(),
+			PresenceWatcher: presenceWatcher(this),
 		};
 
 		//** Set prefix from DB */

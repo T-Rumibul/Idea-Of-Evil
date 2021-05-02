@@ -1,7 +1,7 @@
 import mongoose, { Model } from 'mongoose';
 import dotenv from 'dotenv';
 import { BaseModule } from './BaseModule';
-import Lowdb, { AdapterAsync, LowdbAsync } from 'lowdb';
+import Lowdb, { LowdbAsync } from 'lowdb';
 import FileAsync from 'lowdb/adapters/FileAsync';
 
 dotenv.config();
@@ -16,6 +16,7 @@ const Schema = mongoose.Schema;
 const BOT = new Schema({
 	ID: Number,
 	config: Map,
+	presenceWatcher: Map,
 });
 const NAME = 'DataBase';
 export class DBCls extends BaseModule {
@@ -56,22 +57,25 @@ export class DBCls extends BaseModule {
 		if (!this.local) {
 			await this.initLocal();
 		}
-		const value = this.local.get(`${name}`).value().get(key);
-		return value;
+		const value = this.local.get(`${name}`).value();
+		if (value === undefined) return undefined;
+
+		return value.get(key);
 	}
 	public async set(name: string, key: string, data: any) {
 		if (!this.local) {
 			await this.initLocal();
 		}
-		this.local.get(name).set(key, data);
-		this.local.set(name, this.local.get(name).value().set(key, data));
-		await this.local.write();
+
+		const map = this.local.get(name).value() || new Map();
+		map.set(key, data);
+		await this.local.set(name, map).write();
 	}
 	private async initLocal() {
 		this.log('Initialization Local DB');
 		const db = await Lowdb(new FileAsync('local_db.json'));
 		const doc = await this.getDoc();
-		await db.setState(doc);
+		db.setState(doc);
 		await db.write();
 		this.local = db;
 		this.log('Initialization Local DB Finished');
