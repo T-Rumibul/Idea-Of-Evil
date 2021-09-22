@@ -5,8 +5,8 @@
     "author": "RynerNO",
     "license": "MIT",
     "engines": {
-        "node": ">=16.0.0"
-    },
+    "node": "16.x"
+  },
     "scripts": {
         "dev": "nodemon --ignore db.json --exec ts-node -r tsconfig-paths/register  src/index.ts",
         "start": "ts-node -r tsconfig-paths/register src/index.ts"
