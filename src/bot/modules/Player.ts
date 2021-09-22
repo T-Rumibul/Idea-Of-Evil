@@ -9,7 +9,6 @@ import { Config } from 'node-json-db/dist/lib/JsonDBConfig'
 import { AudioPlayer,  AudioPlayerStatus, createAudioPlayer, createAudioResource, getVoiceConnection, joinVoiceChannel, NoSubscriberBehavior, StreamType, VoiceConnection } from '@discordjs/voice';
 import * as ytdl from 'play-dl'
 
-
 const db = new JsonDB(new Config("db", true, false, '/'));
 
 // interface FooBar {
@@ -29,7 +28,7 @@ dotenv.config()
 
 
 const opts = {
-	maxResults: 1,
+	maxResults: 10,
 	key: process.env.YOUTUBEKEY,
 	type: 'video'
 };
@@ -75,18 +74,18 @@ export class Player extends BaseModule {
 	}
 	async init() {
 		try {
-				this.channels = await this.client.getMusicChannels();
-				this.log('Music Channel: ', this.channels)
-				this.channels.forEach(async (channelId: string, guildId: string) => {
-					const guild = await this.client.guilds.fetch(guildId)
-					if (!guild) return;
-					const channel = await guild.channels.fetch(channelId)
+			this.channels = await this.client.getMusicChannels();
+			this.log('Music Channel: ', this.channels)
+			this.channels.forEach(async (channelId: string, guildId: string) => {
+				const guild = await this.client.guilds.fetch(guildId)
+				if (!guild) return;
+				const channel = await guild.channels.fetch(channelId)
 
-					if (channel && channel.type === "GUILD_TEXT" && channel.isText()) {
-						await this.sendControllMessage(channel, guildId)
-					}
+				if (channel && channel.type === "GUILD_TEXT" && channel.isText()) {
+					await this.sendControllMessage(channel, guildId)
+				}
 
-				})
+			})
 			
 			
 		} catch (e) {
@@ -136,79 +135,162 @@ export class Player extends BaseModule {
 		}
 	}
 	async reactionHandler(reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser) {
-		const msg = this.playerControllMessages.get(reaction.message.guildId)
-		if (!msg) return;
+		try {
+			const msg = this.playerControllMessages.get(reaction.message.guildId)
+			if (!msg) return;
 		
-		if (user.bot) return;
-		reaction.users.remove(user.id)
-		const guildId = reaction.message.guildId;
-		const player = this.player.get(guildId);
-		if (!player) return;
-		switch (reaction.emoji.name) {
-			case (this.reactions[0]):
-				player.unpause()
-				break
-			case (this.reactions[1]):
-				player.pause(true)
-				break
-			case (this.reactions[2]):
-				let connection = getVoiceConnection(guildId);
-				if (connection) connection.destroy();
+			if (user.bot) return;
+			if (reaction.message.id != msg.id) return;
+			reaction.users.remove(user.id)
+			const guildId = reaction.message.guildId;
+			const player = this.player.get(guildId);
+			if (!player) return;
+			switch (reaction.emoji.name) {
+				case (this.reactions[0]):
+					player.unpause()
+					break
+				case (this.reactions[1]):
+					player.pause(true)
+					break
+				case (this.reactions[2]):
+					let connection = getVoiceConnection(guildId);
+					if (connection) connection.destroy();
 				
-				player.stop(true);
-				if (db.exists('/queue')) {
+					player.stop(true);
+					if (db.exists('/queue')) {
+						let queue = db.getObject<Queue>('/queue')
+						queue[guildId] = []
+						db.push('/queue', queue)
+					}
+					await this.updateControllMessage(msg.guildId)
+					break
+				case (this.reactions[3]):
+					await this.nextSong(guildId, true);
+					break
+				case (this.reactions[4]):
 					let queue = db.getObject<Queue>('/queue')
-					queue[guildId] = []
-					db.push('/queue', queue)
-				}
-				await this.updateControllMessage(msg.guildId)
-				break
-			case (this.reactions[3]):
-				await this.nextSong(guildId, true);
-				break
-			case (this.reactions[4]):
-				let queue = db.getObject<Queue>('/queue')
-				if (!queue[guildId] || queue[guildId].length == 0) break;
-				queue[guildId][0].repeat = !queue[guildId][0].repeat;
-				db.push('/queue', queue);
-				await this.updateControllMessage(guildId)
-				break
-			case (this.reactions[5]):
-				if (db.exists('/queue')) {
-					let queue = db.getObject<Queue>('/queue')
-					if (!queue[guildId] || queue[guildId].length <= 1) break;
-					let currentSong = queue[guildId].shift()
-					let shuffled = await this.shuffle(queue[guildId]);
-					shuffled.unshift(currentSong)
-					queue[guildId] = shuffled;
-					db.push('/queue', queue)
+					if (!queue[guildId] || queue[guildId].length == 0) break;
+					queue[guildId][0].repeat = !queue[guildId][0].repeat;
+					db.push('/queue', queue);
 					await this.updateControllMessage(guildId)
-				}
-				break
-			case (this.reactions[6]):
+					break
+				case (this.reactions[5]):
+					if (db.exists('/queue')) {
+						let queue = db.getObject<Queue>('/queue')
+						if (!queue[guildId] || queue[guildId].length <= 1) break;
+						let currentSong = queue[guildId].shift()
+						let shuffled = await this.shuffle(queue[guildId]);
+						shuffled.unshift(currentSong)
+						queue[guildId] = shuffled;
+						db.push('/queue', queue)
+						await this.updateControllMessage(guildId)
+					}
+					break
+				case (this.reactions[6]):
 				
-				let Oldconnection = getVoiceConnection(guildId);
-				if (Oldconnection) Oldconnection.destroy();
+					let Oldconnection = getVoiceConnection(guildId);
+					if (Oldconnection) Oldconnection.destroy();
 				
-				console.log(player.state.status)
-				if (player.state.status !== AudioPlayerStatus.Idle) {
-					player.pause(true);
-				};
+					console.log(player.state.status)
+					if (player.state.status !== AudioPlayerStatus.Idle) {
+						player.pause(true);
+					};
 				
-				let guild = await this.client.guilds.fetch(guildId)
-				let newConnection = joinVoiceChannel({
-					channelId: (await guild.members.fetch(user.id)).voice.channelId,
-					guildId: guildId,
-					adapterCreator: guild.voiceAdapterCreator
-				})
-				this.play(guildId, newConnection)
-				break;
-			default:
-				break
+					let guild = await this.client.guilds.fetch(guildId)
+					let newConnection = joinVoiceChannel({
+						channelId: (await guild.members.fetch(user.id)).voice.channelId,
+						guildId: guildId,
+						adapterCreator: guild.voiceAdapterCreator
+					})
+					this.play(guildId, newConnection)
+					break;
+				default:
+					break
+			}
+		} catch (e) {
+			this.log('Reaction handler error:', e)
 		}
 		
-		
 	}
+	sendChooseMessage(member: GuildMember, channel: TextChannel, tracks: Search.YouTubeSearchResults[]): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const timeoutId = setTimeout(async () => {
+					await removeMsgAndCollector();
+					resolve(-1)
+				}, 50000)
+		
+				let embed = Object.assign({}, embedTemplate)
+				embed.author.name = "Выберите трек:"
+				let reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
+				let cancel = '❌'
+				let tracksCount = 0;
+				for (let i = 0; i < tracks.length; i++) {
+					if (i >= 5) break;
+					tracksCount += 1;
+					embed.description += `${i + 1}. **[${tracks[i].title}](${tracks[i].link})** \n`;
+				}
+		
+			
+				let chooseMsg = await channel.send({
+					embeds: [embed]
+				});
+				const reactionCollector = await chooseMsg.createReactionCollector()
+				reactionCollector.on('collect', (r, user) => {
+					if (user.bot) return;
+					if (user.id !== member.user.id) return;
+					const emoji = r.emoji.name
+
+					switch (emoji) {
+						case (reactions[0]):
+							resolve(0)
+							removeMsgAndCollector()
+							break
+						case (reactions[1]):
+							if (tracksCount < 1) break;
+							resolve(1)
+							removeMsgAndCollector()
+							break
+						case (reactions[2]):
+							if (tracksCount < 2) break;
+							resolve(2)
+							removeMsgAndCollector()
+							break;
+						case (reactions[3]):
+							if (tracksCount < 3) break;
+							resolve(3)
+							removeMsgAndCollector()
+							break;
+						case (reactions[4]):
+							if (tracksCount < 4) break;
+							resolve(4)
+							removeMsgAndCollector()
+							break;
+						case (cancel):
+							resolve(-1)
+							removeMsgAndCollector()
+							break
+					}
+				})
+				for (let i = 0; i < tracksCount; i++) if (!chooseMsg.deleted) await chooseMsg.react(reactions[i])
+				if (!chooseMsg.deleted) await chooseMsg.react(cancel);
+			
+				async function removeMsgAndCollector() {
+					try {
+						clearTimeout(timeoutId);
+						reactionCollector.stop();
+						if (!chooseMsg.deleted) {
+							await chooseMsg.delete();
+						}
+					} catch (e) {
+						this.log('Remove choose msg error')
+					}
+				}
+			} catch (e) {
+				this.log('Choose track error:', e)
+			}
+		})
+}
 	async sendControllMessage(channel: TextChannel, guildId: string) {
 		if ((await channel.messages.fetch({}, {
 			cache: true
@@ -223,37 +305,45 @@ export class Player extends BaseModule {
 		await this.initControlls(guildId)
 	}
 	async addToQueue(message: Message) {
-		const guildId = message.guildId
-		let search = await this.searchTrack(message.content)
-		if (!search || search.length == 0) {
-			const msg = await message.channel.send('Трек не найден.')
-			this.client.utils.deleteMessageTimeout(msg, 5000);
-			this.client.utils.deleteMessageTimeout(message, 5000);
-			return false;
-		};
-
-		let song = {
-					'title': search[0].title,
-					'link': search[0].link,
-					'repeat': false
-		}
+		try {
+			const guildId = message.guildId
+			let search = await this.searchTrack(message.content)
+			if (!search || search.length == 0) {
+				const msg = await message.channel.send('Трек не найден.')
+				this.client.utils.deleteMessageTimeout(msg, 5000);
+				this.client.utils.deleteMessageTimeout(message, 5000);
+				return false;
+			};
+			if (!message.deleted) {
+				await message.delete()
+			}
+			let selectedTrack = await this.sendChooseMessage(message.member, <TextChannel>message.channel, search)
+			if (selectedTrack == -1) return;
+			let song = {
+				'title': search[selectedTrack].title,
+				'link': search[selectedTrack].link,
+				'repeat': false
+			}
 		
-		let queue: Queue = {}
-		if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
-		if (queue.hasOwnProperty(guildId)) {
-			const updatedQueue = queue[guildId];
-			updatedQueue.push(song)
-			queue[guildId] = updatedQueue;
+			let queue: Queue = {}
+			if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
+			if (queue.hasOwnProperty(guildId)) {
+				const updatedQueue = queue[guildId];
+				updatedQueue.push(song)
+				queue[guildId] = updatedQueue;
+				db.push('/queue', queue)
+				await this.updateControllMessage(guildId)
+
+				return true;
+			}
+			queue[guildId] = [song]
 			db.push('/queue', queue)
+
 			await this.updateControllMessage(guildId)
-			this.client.utils.deleteMessageTimeout(message, 5000);
 			return true;
+		} catch (e) {
+			this.log('Add to queue error:', e)
 		}
-		queue[guildId] = [song]
-		db.push('/queue', queue)
-		this.client.utils.deleteMessageTimeout(message, 5000);
-		await this.updateControllMessage(guildId)
-		return true;
 	}
 	async updateControllMessage(guildId: string) {
 		const msg = this.playerControllMessages.get(guildId);
@@ -355,8 +445,7 @@ export class Player extends BaseModule {
 		if (!db.exists('/queue')) return;
 		let queue = db.getObject<Queue>('/queue')[guildId]
 		if (queue.length == 0) return;
-
-		const stream = await ytdl.stream(queue[0].link);
+		const stream = await ytdl.stream(queue[0].link, process.env.YOUTUBECOOKIES);
 		const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
 		
 		player.play(resource);
