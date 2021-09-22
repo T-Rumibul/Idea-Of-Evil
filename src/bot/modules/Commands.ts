@@ -13,14 +13,16 @@ export interface CustomArgs {
 export class Commands extends BaseModule {
 	private CAT_NAMES: string[];
 	private PARSER: CommandHandler;
-	constructor() {
+	private client: IOEClient;
+	constructor(client: IOEClient) {
 		super(NAME);
+		this.client = client;
 		this.init();
 	}
 	public get Parser() {
 		return this.PARSER;
 	}
-	private init() {
+	private async init() {
 		this.log('Initialization');
 		this.CAT_NAMES = readdirSync(COMMANDS_PATH, { withFileTypes: true })
 			.filter((dirent) => dirent.isDirectory())
@@ -30,41 +32,48 @@ export class Commands extends BaseModule {
 		this.CAT_NAMES.forEach((name) => {
 			catPaths.push(path.join(COMMANDS_PATH, name));
 		});
+
 		this.PARSER = createHandler(catPaths, {
 			quotesType: "'",
+			prefix: '&',
 		});
 		this.log('Initialization Completed');
-		this.log(`Commands: %O`, this.PARSER.Commands);
+		this.registerEvents();
 	}
-	async parse(message: Message, client: IOEClient) {
-		if (message.content.startsWith('<@!')) {
-			message.content = message.content.replace(/(<@(!?)+\d+>)/, await client.getPrefix());
+	private registerEvents() {
+		this.client.on('messageCreate', async (message: Message) => {
+			if (message.author.bot) return;
+			const prefix = await this.client.getPrefix(message.guild.id);
+			this.PARSER.setPrefix(prefix);
+			this.parse(message);
+		});
+	}
+	async parse(message: Message) {
+		console.log(message.content)
+		if (message.content.startsWith(`<@!${this.client.user.id}`)) {
+			message.content = message.content.replace(/(<@(!?)+\d+>)/, this.PARSER.Prefix);
 		}
 		try {
 			let parseResult = await this.PARSER.command(message.content);
-			if (!parseResult && !message.mentions.users.has(client.user.id)) {
-				return;
-			}
+			if (!parseResult) return;
+
 			const { cmd, exec } = parseResult;
-			if (cmd.adminOnly && !client.utils.isAdmin(message.member, client.DB.adminRoles)) {
+			if (cmd.adminOnly && !this.client.utils.isAdmin(message.member)) {
 				await message.channel.send(`Недостаточно прав для использования этой команды!`);
 				return;
 			}
-			if (cmd.ownerOnly && !client.utils.isOwner(message.member)) {
+			if (cmd.ownerOnly && !this.client.utils.isOwner(message.member)) {
 				await message.channel.send(`Недостаточно прав для использования этой команды!`);
 				return;
 			}
-			if (
-				cmd.moderOnly &&
-				!client.utils.isMod(message.member, client.DB.modRoles, client.DB.adminRoles)
-			) {
+			if (cmd.moderOnly && !this.client.utils.isMod(message.member)) {
 				await message.channel.send(`Недостаточно прав для использования этой команды!`);
 				return;
 			}
 			this.log('%O', cmd);
 			exec(message.member, {
 				Message: message,
-				Client: client,
+				Client: this.client,
 			});
 		} catch (e) {
 			console.log(typeof e === 'string' && e == 'Command not found.');
@@ -75,8 +84,8 @@ export class Commands extends BaseModule {
 }
 
 let instance: Commands;
-export function commands() {
-	if (!instance) instance = new Commands();
+export function commands(client: IOEClient) {
+	if (!instance) instance = new Commands(client);
 
 	return instance;
 }

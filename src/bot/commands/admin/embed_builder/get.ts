@@ -7,7 +7,7 @@ export const exec = async (caller: GuildMember, args: Args, { Message, Client }:
 	const embeds = await (await Message.channel.messages.fetch(args._[0])).embeds;
 	for (let embed of embeds) {
 		const msg = await Message.channel.send(`\`\`\`${JSON.stringify(embed.toJSON())}\`\`\``);
-		msg.delete({ timeout: 5000 });
+		Client.utils.deleteMessageTimeout(msg, 5000);
 	}
-	await Message.delete({ timeout: 5000 });
+	Client.utils.deleteMessageTimeout(Message, 5000 );
 };

@@ -9,9 +9,12 @@ export const exec = async (caller: GuildMember, args: Args, { Message, Client }:
 	const Obj = JSON.parse(args._[0].replace(/'/g, '"'));
 	if (!Obj.content && !Obj.embed) {
 		const embed = new MessageEmbed(Obj.embed);
-		await Message.channel.send(Obj.content, { embed: embed });
+		await Message.channel.send({
+			content: Obj.content,
+			embeds: [embed]
+		});
 	} else {
 		const embed = new MessageEmbed(Obj);
-		await Message.channel.send(embed);
+		await Message.channel.send({embeds: [embed]});
 	}
 };

@@ -3,8 +3,11 @@ import { Presence } from 'discord.js';
 export function Emit(oldPresence: Presence, newPresence: Presence, client: IOEClient) {
 	const member = newPresence.member;
 	if (member.user.bot) return;
+	if (newPresence.activities.length > 0 && newPresence.activities[0].type === 'PLAYING') {
+		client.modules.MemberProfiles.addActivity(member.id, oldPresence, newPresence);
+	}
 	if (oldPresence && newPresence.status === 'offline') {
-		client.modules.PresenceWatcher.addSession(member.id, oldPresence);
+		client.modules.MemberProfiles.addSession(member.id, oldPresence);
 	}
 }
 

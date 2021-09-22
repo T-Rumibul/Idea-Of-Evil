@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target":"esnext",
     "module": "CommonJS",
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
+    "experimentalDecorators":true,
+    "emitDecoratorMetadata": true,
     "outDir": "dist",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

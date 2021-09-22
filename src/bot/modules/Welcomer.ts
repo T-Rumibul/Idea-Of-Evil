@@ -1,13 +1,11 @@
 import { BaseModule } from '@bot/core/BaseModule';
 import { IOEClient } from '@bot/core/IOEClient';
 import {
-	DMChannel,
-	GuildChannel,
 	GuildMember,
 	MessageAttachment,
 	MessageEmbed,
-	NewsChannel,
-	TextChannel,
+	TextBasedChannels,
+
 } from 'discord.js';
 import jimp from 'jimp';
 import path from 'path';
@@ -16,14 +14,20 @@ const NAME = 'Welcomer';
 export class Welcomer extends BaseModule {
 	constructor() {
 		super(NAME);
+		this.disabled = true;
 	}
+	
 	async sendWelcomeMesssageTrigger(member: GuildMember, client: IOEClient) {
 		if (this.disabled) return;
-		const channel = member.guild.channels.cache.get(await client.getWelcomeChannel());
+		const channel: any = undefined; // member.guild.channels.cache.get(await client.getWelcomeChannel());
 		if (!channel || !channel.isText()) return;
 		await this.sendWelcomeMesssage(member, channel);
 	}
-	async sendWelcomeMesssage(member: GuildMember, channel: TextChannel | DMChannel | NewsChannel) {
+	async sendWelcomeMesssage(member: GuildMember, channel: TextBasedChannels) {
+		if (channel.type != "GUILD_TEXT") {
+			this.log('Error: Channel Type is not GUILD_TEXT');
+			return;
+		}
 		let background = await jimp.read(path.join(ASSETS_PATH, 'background.png'));
 		let avatar_mask = await jimp.read(path.join(ASSETS_PATH, 'avatar-mask.png'));
 		let nickname_font = await jimp.loadFont(path.join(ASSETS_PATH, 'nickname.fnt'));
@@ -52,11 +56,14 @@ export class Welcomer extends BaseModule {
 		);
 		const embed = new MessageEmbed()
 			.setColor(12387078)
-			.attachFiles([image])
 			.setImage('attachment://final.png');
 
 		await channel
-			.send('<@' + member.id + '>', { embed })
+			.send({
+				content: '<@' + member.id + '>',
+				embeds: [embed],
+				files: [image]
+			})
 			.then((message) => this.log(`Sent message: ${message.content}`))
 			.catch(this.log);
 	}

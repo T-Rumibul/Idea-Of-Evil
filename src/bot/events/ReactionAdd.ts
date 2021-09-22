@@ -1,0 +1,9 @@
+import { IOEClient } from '@bot/core/IOEClient';
+import { GuildMember, MessageReaction, PartialMessageReaction, PartialUser, User } from 'discord.js';
+
+export async function Emit(reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser, client: IOEClient) {
+   
+        await client.modules.Player.reactionHandler(reaction, user)
+}
+
+export default Emit;

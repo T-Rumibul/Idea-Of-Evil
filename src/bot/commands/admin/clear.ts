@@ -7,13 +7,13 @@ export const adminOnly = true;
 
 export const exec = async (caller: GuildMember, args: Args, { Message, Client }: CustomArgs) => {
 	try {
-		if ((Message.channel.type = 'text')) {
+		if ((Message.channel.type = 'GUILD_TEXT')) {
 			const channel = <TextChannel>Message.channel;
 			await Message.delete();
 			const deleted = await channel.bulkDelete(Number(args._[0]), true);
 
 			const resp = await channel.send(`Удалено **${deleted.size}** сообщений.`);
-			resp.delete({ timeout: 5000 });
+			Client.utils.deleteMessageTimeout(resp, 5000)
 		}
 	} catch (e) {
 		log(e);
