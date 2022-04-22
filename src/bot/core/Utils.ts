@@ -50,9 +50,13 @@ export class Utils {
 		return channel;
 	}
 	public async deleteMessageTimeout(message: Message, timeout: number) {
-		setTimeout(() => {
+		setTimeout(async () => {
 			try {
-				message.delete()
+				const msg = await message.channel.messages.cache.get(message.id)
+				if(!msg) return;
+				if (msg.deletable) {
+					msg.delete()
+				}
 			} catch (e) {
 				this.client.log('Message delete error:', e)
 			}

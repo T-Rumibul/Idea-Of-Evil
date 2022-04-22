@@ -5,7 +5,6 @@ import { getLogger } from '@bot/utils/Logger';
 import { IOEClient } from '../IOEClient';
 import GuildController from './controllers/Guild';
 import ProfileController from './controllers/Profile';
-import { GuildModel } from './models/Guild';
 
 dotenv.config();
 
@@ -28,9 +27,11 @@ export class DB {
 	}
 	private async init() {
 		this.log('DB Initialization');
+		const db_uri = (!process.env.dev) ? process.env.DB : process.env.DEV_DB;
+	
+
 		mongoose
-			.connect(process.env.DB, {
-				
+			.connect(db_uri, {
 			})
 			.catch((error) => {
 				this.log('Mongoose connect error:', error);

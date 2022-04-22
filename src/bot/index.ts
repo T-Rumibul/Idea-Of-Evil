@@ -1,6 +1,5 @@
 import { IOEClient } from '@bot/core/IOEClient';
 
-import { Guild, GuildMember, Interaction, Message } from 'discord.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -25,11 +24,14 @@ export const client: IOEClient = new IOEClient();
 // 	abstract exec(Message: String, Client: T): String;
 // }
 export function run() {
-	client.login(process.env.TOKEN);
-	client.on('ready', async () => {
-		client.log('Bot is Ready!');
-		client.registerModules()
-	});
+	if (!process.env.dev) {
+		console.log('PROD TOKEN')
+		client.login(process.env.TOKEN);
+	} else {
+		console.log('DEV TOKEN')
+		client.login(process.env.DEVTOKEN)
+		
+	}
 }
 
 export default client;

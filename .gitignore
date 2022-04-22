@@ -6,3 +6,5 @@ tokens.json
 yarn.lock
 local_db.json
 yarn-error.log
+dist
+.data

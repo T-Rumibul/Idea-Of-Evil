@@ -55,6 +55,20 @@ export class IOEClient extends Client {
 		await this.DB.guild.set(guildId, guildData);
 		this.DB.guild.write();
 	}
+	public async blackListUser(id: string, reason: string) {
+		const profileData = await this.DB.profile.get(id);
+		profileData.ban = true;
+		profileData.banReason = reason;
+		await this.DB.profile.set(id, profileData);
+		this.DB.profile.write();
+	}
+
+	public async checkBlackListUser(id: string): Promise<string|null>{
+		const profileData = await this.DB.profile.get(id);
+		if(profileData.ban) return profileData.banReason
+		else return null
+	}
+	
 	public async getMusicChannels(): Promise<Map<string, string>> {
 		const guilds = this.guilds;
 
@@ -63,7 +77,6 @@ export class IOEClient extends Client {
 		for (const [key, value] of guilds.cache) {
 			const guildData = await this.DB.guild.get(key)
 			let musicChannelId = guildData.musicChannel;
-			console.log(guildData)
 			if (!musicChannelId) {
 				musicChannels.set(key, '');
 			} else {
@@ -101,6 +114,10 @@ export class IOEClient extends Client {
 		});
 		this.on('messageReactionAdd', async (reaction, user) => {
 			ReactionAdd(reaction, user, this)
+		})
+
+		this.on('ready', async () => {
+			this.registerModules()
 		})
 	}
 }

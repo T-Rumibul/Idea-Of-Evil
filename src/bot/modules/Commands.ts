@@ -34,7 +34,8 @@ export class Commands extends BaseModule {
 		});
 
 		this.PARSER = createHandler(catPaths, {
-			quotesType: "'",
+			quotesType: '"',
+			useQuotes: true,
 			prefix: '&',
 		});
 		this.log('Initialization Completed');
@@ -43,21 +44,26 @@ export class Commands extends BaseModule {
 	private registerEvents() {
 		this.client.on('messageCreate', async (message: Message) => {
 			if (message.author.bot) return;
-			const prefix = await this.client.getPrefix(message.guild.id);
-			this.PARSER.setPrefix(prefix);
+			const musicChannels = await this.client.getMusicChannels()
+			if (message.channelId === musicChannels.get(message.guildId)) return;
 			this.parse(message);
 		});
 	}
 	async parse(message: Message) {
-		console.log(message.content)
 		if (message.content.startsWith(`<@!${this.client.user.id}`)) {
-			message.content = message.content.replace(/(<@(!?)+\d+>)/, this.PARSER.Prefix);
+			message.content = message.content.replace(/(<@(!?)+\d+>)/, await this.client.getPrefix(message.guild.id));
 		}
 		try {
-			let parseResult = await this.PARSER.command(message.content);
+			const prefix = await this.client.getPrefix(message.guild.id)
+			let parseResult = await this.PARSER.command(prefix, message.content);
 			if (!parseResult) return;
 
-			const { cmd, exec } = parseResult;
+			const { cmd, exist, exec } = parseResult;
+			if((await this.client.checkBlackListUser(message.author.id)) != null) {
+				const msg = await message.channel.send(`<@${message.author.id}> Вы внесены в черный список и не можете использовать команды этого бота. \n Причина: ${await this.client.checkBlackListUser(message.author.id)}`);
+				this.client.utils.deleteMessageTimeout(msg, 10000)
+				return
+			}
 			if (cmd.adminOnly && !this.client.utils.isAdmin(message.member)) {
 				await message.channel.send(`Недостаточно прав для использования этой команды!`);
 				return;

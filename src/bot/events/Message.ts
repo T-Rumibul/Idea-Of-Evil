@@ -4,7 +4,12 @@ import { Message } from 'discord.js';
 export async function Emit(Message: Message, client: IOEClient) {
     
     if (Message.author.bot) return;
-    await client.modules.Player.searchAndPlayOrAddToQueue(Message)
+    try {
+       
+        await client.modules.Player.searchAndPlayOrAddToQueue(Message)
+    } catch(e) {
+        console.log(e)
+    }
 }
 
 export default Emit;

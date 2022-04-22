@@ -1,10 +1,16 @@
-import { getModelForClass, prop } from '@typegoose/typegoose';
+import { getModelForClass, mongoose, prop } from '@typegoose/typegoose';
 
 export class Profile {
 	@prop()
-	globalXP: number;
-	@prop()
-	guildXP: Object;
+	userID: string;
+	@prop({ default: 0 })
+	globalXP?: number;
+	@prop({ default: 0 })
+	guildXP?: number;
+	@prop({ default: false })
+	ban?: boolean;
+	@prop({ default: '' })
+	banReason?: string;
 }
 
 export const ProfileModel = getModelForClass(Profile);
