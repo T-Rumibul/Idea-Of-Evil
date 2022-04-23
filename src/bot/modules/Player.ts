@@ -44,6 +44,9 @@ let embedTemplate = {
 	"description": "",
 	"url": "",
 	"color": 8340425,
+	"image": {
+		"url": ""
+	},
 	"author": {
 		"name": "Сейчас проигрывается:",
 		"url": ""
@@ -54,7 +57,8 @@ type Song = {
 	title: string,
 	link: string,
 	repeat: boolean,
-	duration: string
+	duration: string,
+	thumbnail: string
 }
 type Queue = {
 	[key: string]: Song[] 
@@ -372,12 +376,13 @@ export class Player extends BaseModule {
 			this.blockedUsers.set(message.member.id, true)
 			let selectedTrack = await this.sendChooseMessage(message.member, <TextChannel>message.channel, search)
 			if (selectedTrack == -1) return;
-			const duration = (await ytdl.video_basic_info(search[selectedTrack].link)).video_details.durationRaw
+			const videoBasicInfo = await ytdl.video_basic_info(search[selectedTrack].link)
 			let song = {
 				'title': search[selectedTrack].title,
 				'link': search[selectedTrack].link,
 				'repeat': false,
-				'duration': duration
+				'duration': videoBasicInfo.video_details.durationRaw,
+				'thumbnail': videoBasicInfo.video_details.thumbnail.url
 			}
 		
 			let queue: Queue = {}
@@ -418,6 +423,7 @@ export class Player extends BaseModule {
 					if (queue[i].repeat) newEmbed.title = `🔁 [${queue[i].duration}] ${queue[i].title}`;
 					else newEmbed.title = `[${queue[0].duration}] ${queue[i].title}`;
 					newEmbed.url = queue[i].link;
+					newEmbed.image.url = queue[i].thumbnail
 					continue;
 				}
 				newEmbed.description += `${i}. **[[${queue[i].duration}] ${queue[i].title}](${queue[i].link})** \n`;

@@ -14,6 +14,6 @@ If you need help, join my [discord server](https://discord.gg/75NmVJa)
 
 ## License
 
-[MIT License](https://github.com/RynerNO/command-handler-discord/blob/master/LICENSE)
+[MIT License](https://github.com/RynerNO/Idea-Of-Evil/blob/main/LICENSE)
 
-Copyright (c) 2022 [RynerNO](https://github.com/RynerNO) <ryner.no@gmail.com>
+Copyright (c) 2020-2022 [RynerNO](https://github.com/RynerNO) <ryner.no@gmail.com>

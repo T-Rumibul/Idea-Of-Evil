@@ -118,6 +118,7 @@ export class IOEClient extends Client {
 
 		this.on('ready', async () => {
 			this.registerModules()
+			this.user.setActivity(`серверов: ${this.guilds.cache.size}`,{type: "WATCHING"})
 		})
 	}
 }
