@@ -39,6 +39,7 @@ export class Utils {
 		return false;
 	}
 	public async getMemberFromMentions(mention: string, guild: Guild): Promise<GuildMember> {
+		if (!mention) return;
 		let usedID = mention.replace(/([^0-9])+/g, '');
 		const member = await guild.members.fetch(usedID);
 		return member;
@@ -52,6 +53,7 @@ export class Utils {
 	public async deleteMessageTimeout(message: Message, timeout: number) {
 		setTimeout(async () => {
 			try {
+				if (!message) return;
 				const msg = await message.channel.messages.cache.get(message.id)
 				if(!msg) return;
 				if (msg.deletable) {

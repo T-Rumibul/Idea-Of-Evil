@@ -8,9 +8,8 @@ export const exec = async (caller: GuildMember, args: string[], { Message, Clien
 	try {
 		if ((Message.channel.type = 'GUILD_TEXT')) {
 			const channel = <TextChannel>Message.channel;
-			await Message.delete();
 			const amount = Number(args[0]);
-			if(!Number.isInteger(amount)) return;
+			if(!Number.isInteger(amount) || amount <= 0) return;
 			const deleted = await channel.bulkDelete(Number(args[0]), true);
 
 			const resp = await channel.send(`Удалено **${deleted.size}** сообщений.`);

@@ -8,5 +8,4 @@ export const exec = async (caller: GuildMember, args: string[], { Message, Clien
 		const msg = await Message.channel.send(`\`\`\`${JSON.stringify(embed.toJSON())}\`\`\``);
 		Client.utils.deleteMessageTimeout(msg, 5000);
 	}
-	Client.utils.deleteMessageTimeout(Message, 5000 );
 };
