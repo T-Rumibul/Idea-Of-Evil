@@ -14,12 +14,14 @@ const NAME = 'Welcomer';
 export class Welcomer extends BaseModule {
 	constructor() {
 		super(NAME);
-		this.disabled = true;
+		this.disabled = false;
 	}
 	
 	async sendWelcomeMesssageTrigger(member: GuildMember, client: IOEClient) {
 		if (this.disabled) return;
-		const channel: any = undefined; // member.guild.channels.cache.get(await client.getWelcomeChannel());
+		const channelId = await client.getWelcomeChannel(member.guild.id)
+		const channel: any = member.guild.channels.cache.get(channelId);
+		console.log(channel)
 		if (!channel || !channel.isText()) return;
 		await this.sendWelcomeMesssage(member, channel);
 	}

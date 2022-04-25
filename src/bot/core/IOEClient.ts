@@ -68,7 +68,6 @@ export class IOEClient extends Client {
 		if(profileData.ban) return profileData.banReason
 		else return null
 	}
-	
 	public async getMusicChannels(): Promise<Map<string, string>> {
 		const guilds = this.guilds;
 
@@ -88,8 +87,17 @@ export class IOEClient extends Client {
 		return musicChannels;
 	}
 	public getAdminRoles() { }
-	public async setWelcomeChannel(string: string) { }
-	public async getWelcomeChannel() {}
+	public async setWelcomeChannel(guildId: string, channelId: string) {
+
+		const guildData = await this.DB.guild.get(guildId);
+		guildData.welcomeChannel = channelId;
+		await this.DB.guild.set(guildId, guildData);
+	 }
+	public async getWelcomeChannel(guildId: string) {
+		const guildData = await this.DB.guild.get(guildId);
+		return guildData.welcomeChannel;
+
+	}
 	public registerModules() {
 		this.modules = {
 			Commands: commands(this),
