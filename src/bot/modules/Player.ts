@@ -2,6 +2,7 @@ import { BaseModule } from '@bot/core/BaseModule';
 import { IOEClient } from '@bot/core/IOEClient';
 import { GuildMember, Message, MessageEmbed, MessageReaction, PartialMessageReaction, PartialUser, ReactionCollector, TextChannel, User } from 'discord.js';
 
+import yts from 'yt-search';
 import Search from 'youtube-search';
 import dotenv from 'dotenv';
 import { JsonDB } from 'node-json-db';
@@ -100,10 +101,13 @@ export class Player extends BaseModule {
 	}
 	async searchTrack(track: string) {
 		try {
-			const song = await Search(track, opts)
-		
-			if (song.results.length > 0) {
-				return song.results;
+			//const song = await Search(track, opts)
+			// if (song.results.length > 0) {
+			// 	return song.results;
+			// }
+			const song = await yts(track)
+			if (song.videos.length > 0) {
+				return song.videos;
 			}
 		} catch (err) {
 			this.log('Search error: ', err)
@@ -250,11 +254,11 @@ export class Player extends BaseModule {
 		}
 		
 	}
-	sendChooseMessage(member: GuildMember, channel: TextChannel, tracks: Search.YouTubeSearchResults[]): Promise<number> {
+	sendChooseMessage(member: GuildMember, channel: TextChannel, tracks: yts.VideoSearchResult[]): Promise<number> {
 		return new Promise(async (resolve, reject) => {
 			try {
 				
-		
+				
 				let embed: typeof embedTemplate = JSON.parse(JSON.stringify(embedTemplate));
 				embed.author.name = "Выберите трек:"
 				//let reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
@@ -263,7 +267,8 @@ export class Player extends BaseModule {
 				for (let i = 0; i < tracks.length; i++) {
 					if (i >= 5) break;
 					tracksCount += 1;
-					embed.description += `${i + 1}. **[${tracks[i].title}](${tracks[i].link})** \n`;
+					// embed.description += `${i + 1}. **[${tracks[i].title}](${tracks[i].link})** \n`;
+					embed.description += `${i + 1}. **[${tracks[i].title}](${tracks[i].url})** \n`;
 				}
 				
 				 
@@ -376,10 +381,10 @@ export class Player extends BaseModule {
 			this.blockedUsers.set(message.member.id, true)
 			let selectedTrack = await this.sendChooseMessage(message.member, <TextChannel>message.channel, search)
 			if (selectedTrack == -1) return;
-			const videoBasicInfo = await ytdl.video_basic_info(search[selectedTrack].link)
+			const videoBasicInfo = await ytdl.video_basic_info(search[selectedTrack].url)
 			let song = {
 				'title': search[selectedTrack].title,
-				'link': search[selectedTrack].link,
+				'link': search[selectedTrack].url,
 				'repeat': false,
 				'duration': videoBasicInfo.video_details.durationRaw,
 				'thumbnail': videoBasicInfo.video_details.thumbnails[3].url
