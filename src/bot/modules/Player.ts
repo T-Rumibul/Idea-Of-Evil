@@ -382,9 +382,8 @@ export class Player extends BaseModule {
 				'link': search[selectedTrack].link,
 				'repeat': false,
 				'duration': videoBasicInfo.video_details.durationRaw,
-				'thumbnail': videoBasicInfo.video_details.thumbnail.url
+				'thumbnail': videoBasicInfo.video_details.thumbnails[3].url
 			}
-		
 			let queue: Queue = {}
 			if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
 			if (queue.hasOwnProperty(guildId)) {
@@ -533,8 +532,7 @@ export class Player extends BaseModule {
 		// })
 		const stream = await ytdl.stream(queue[0].link);
 	
-		const resource = createAudioResource(stream.stream, { inputType: StreamType.Arbitrary });
-
+		const resource = createAudioResource(stream.stream, { inputType: stream.type });
 		player.play(resource);
 		connection.subscribe(this.player.get(guildId))
 		player.unpause()

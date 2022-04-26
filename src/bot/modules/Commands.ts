@@ -36,10 +36,10 @@ export class Commands extends BaseModule {
 		this.PARSER = createHandler(catPaths, {
 			quotesType: '"',
 			useQuotes: true,
-			prefix: '&',
 		});
-		this.log('Initialization Completed');
 		this.registerEvents();
+		this.log('Initialization Completed');
+		
 	}
 	private registerEvents() {
 		this.client.on('messageCreate', async (message: Message) => {
