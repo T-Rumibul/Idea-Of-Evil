@@ -3,7 +3,6 @@ import { IOEClient } from '@bot/core/IOEClient';
 import { GuildMember, Message, MessageEmbed, MessageReaction, PartialMessageReaction, PartialUser, ReactionCollector, TextChannel, User } from 'discord.js';
 
 import yts from 'yt-search';
-import Search from 'youtube-search';
 import dotenv from 'dotenv';
 import { JsonDB } from 'node-json-db';
 import { Config } from 'node-json-db/dist/lib/JsonDBConfig'
@@ -27,7 +26,7 @@ const db = new JsonDB(new Config("db", true, false, '/'));
 dotenv.config()
 
 
-
+const ytRegEx = /.*(?:(?:youtu.be\/)|(?:v\/)|(?:\/u\/\w\/)|(?:embed\/)|(?:watch\?))\??v?=?([^#\&\?]*).*/
 const opts = {
 	maxResults: 10,
 	key: process.env.YOUTUBEKEY,
@@ -368,12 +367,37 @@ export class Player extends BaseModule {
 				return;
 			}
 			const guildId = message.guildId
+			
+			if (message.content.match(ytRegEx)) {
+				const url = `https://www.youtube.com/watch?v=${message.content.match(ytRegEx)[1]}`
+				const validateUrl = await ytdl.validate(url)
+				if (validateUrl !== "yt_video") {
+					const msg = await message.channel.send('Неправильная ссылка.')
+					this.client.utils.deleteMessageTimeout(msg, 5000);
+					return false;
+				};
+				const videoBasicInfo = await ytdl.video_basic_info(url)
+				let song = {
+					'title': videoBasicInfo.video_details.title,
+					'link': url,
+					'repeat': false,
+					'duration': videoBasicInfo.video_details.durationRaw,
+					'thumbnail': videoBasicInfo.video_details.thumbnails[3].url
+				}
+				let queue: Queue = {}
+				if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
+				if (queue.hasOwnProperty(guildId)) {
+					const updatedQueue = queue[guildId];
+					updatedQueue.push(song)
+					queue[guildId] = updatedQueue;
+					db.push('/queue', queue)
+					await this.updateControllMessage(guildId)
+				}
+				return true
+			} 
 			let search = await this.searchTrack(message.content)
 			if (!search || search.length == 0) {
 				//https://www.youtube.com/watch?v=fmI_Ndrxy14&list=PL3z7nJoxQbExopK76qn2032OBBJ0F_4F_&index=2
-				if (message.content.match(/.*(?:(?:youtu.be\/)|(?:v\/)|(?:\/u\/\w\/)|(?:embed\/)|(?:watch\?))\??v?=?([^#\&\?]*).*/) && ytdl.validate(message.content)) {
-					
-				} 
 				const msg = await message.channel.send('Трек не найден.')
 				this.client.utils.deleteMessageTimeout(msg, 5000);
 				return false;
