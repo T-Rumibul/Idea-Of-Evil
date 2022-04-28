@@ -27,6 +27,7 @@ dotenv.config()
 
 
 const ytRegEx = /.*(?:(?:youtu.be\/)|(?:v\/)|(?:\/u\/\w\/)|(?:embed\/)|(?:watch\?))\??v?=?([^#\&\?]*).*/
+const urlRegEx = /(https?: \/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/
 const opts = {
 	maxResults: 10,
 	key: process.env.YOUTUBEKEY,
@@ -367,23 +368,43 @@ export class Player extends BaseModule {
 				return;
 			}
 			const guildId = message.guildId
-			
-			if (message.content.match(ytRegEx)) {
-				const url = `https://www.youtube.com/watch?v=${message.content.match(ytRegEx)[1]}`
+
+			let song = {
+				title: '',
+				link: '',
+				repeat: false,
+				duration: '',
+				thumbnail: ''
+			}
+			//check is there url or search request
+			if (message.content.match(urlRegEx)) {
+				let url = message.content
+				if (message.content.match(ytRegEx)) url = `https://www.youtube.com/watch?v=${url.match(ytRegEx)[1]}`
+				// https://open.spotify.com/track/7IhKkWrdn7WEfWj0gQ3ihM?si=9f7b55e33f8d4f65
 				const validateUrl = await ytdl.validate(url)
-				if (validateUrl !== "yt_video") {
+				console.log(validateUrl)
+				if (validateUrl !== "yt_video" && validateUrl !== "sp_track") {
 					const msg = await message.channel.send('Неправильная ссылка.')
 					this.client.utils.deleteMessageTimeout(msg, 5000);
 					return false;
 				};
-				const videoBasicInfo = await ytdl.video_basic_info(url)
-				let song = {
-					'title': videoBasicInfo.video_details.title,
-					'link': url,
-					'repeat': false,
-					'duration': videoBasicInfo.video_details.durationRaw,
-					'thumbnail': videoBasicInfo.video_details.thumbnails[3].url
-				}
+				let videoDetails: ytdl.InfoData;
+				if (validateUrl == "sp_track") {
+					if (ytdl.is_expired()) {
+						await ytdl.refreshToken() // This will check if access token has expired or not. If yes, then refresh the token.
+					}
+					let sp_data = await ytdl.spotify(url)
+					let searched = await ytdl.search(`${sp_data.name}`, {
+						limit: 1
+					})
+					videoDetails = await ytdl.video_basic_info(searched[0].url)
+					console.log(videoDetails)
+				} else videoDetails = await ytdl.video_basic_info(url)
+				song.title = videoDetails.video_details.title;
+				song.link = videoDetails.video_details.url;
+				song.duration = videoDetails.video_details.durationRaw;
+				song.thumbnail = videoDetails.video_details.thumbnails[3].url;
+				
 				let queue: Queue = {}
 				if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
 				if (queue.hasOwnProperty(guildId)) {
@@ -394,10 +415,9 @@ export class Player extends BaseModule {
 					await this.updateControllMessage(guildId)
 				}
 				return true
-			} 
+			}
 			let search = await this.searchTrack(message.content)
 			if (!search || search.length == 0) {
-				//https://www.youtube.com/watch?v=fmI_Ndrxy14&list=PL3z7nJoxQbExopK76qn2032OBBJ0F_4F_&index=2
 				const msg = await message.channel.send('Трек не найден.')
 				this.client.utils.deleteMessageTimeout(msg, 5000);
 				return false;
@@ -406,13 +426,11 @@ export class Player extends BaseModule {
 			let selectedTrack = await this.sendChooseMessage(message.member, <TextChannel>message.channel, search)
 			if (selectedTrack == -1) return;
 			const videoBasicInfo = await ytdl.video_basic_info(search[selectedTrack].url)
-			let song = {
-				'title': search[selectedTrack].title,
-				'link': search[selectedTrack].url,
-				'repeat': false,
-				'duration': videoBasicInfo.video_details.durationRaw,
-				'thumbnail': videoBasicInfo.video_details.thumbnails[3].url
-			}
+			song.title = search[selectedTrack].title
+			song.link = search[selectedTrack].url
+			song.duration = videoBasicInfo.video_details.durationRaw
+			song.thumbnail = videoBasicInfo.video_details.thumbnails[3].url
+			
 			let queue: Queue = {}
 			if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
 			if (queue.hasOwnProperty(guildId)) {
