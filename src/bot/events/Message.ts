@@ -6,7 +6,7 @@ export async function Emit(Message: Message, client: IOEClient) {
     if (Message.author.bot) return;
     try {
        
-        await client.modules.Player.searchAndPlayOrAddToQueue(Message)
+        await client.modules.Player.play(Message)
     } catch(e) {
         console.log(e)
     }

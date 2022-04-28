@@ -6,11 +6,11 @@ import yts from 'yt-search';
 import dotenv from 'dotenv';
 import { JsonDB } from 'node-json-db';
 import { Config } from 'node-json-db/dist/lib/JsonDBConfig'
-import { AudioPlayer,  AudioPlayerStatus, createAudioPlayer, createAudioResource, getVoiceConnection, joinVoiceChannel, NoSubscriberBehavior, StreamType, VoiceConnection } from '@discordjs/voice';
+import { AudioPlayer,  AudioPlayerStatus, createAudioPlayer, createAudioResource, DiscordGatewayAdapterCreator, getVoiceConnection, joinVoiceChannel, NoSubscriberBehavior, StreamType, VoiceConnection } from '@discordjs/voice';
 import * as ytdl from 'play-dl'
 
 const db = new JsonDB(new Config("db", true, false, '/'));
-
+db.push('/queue', [])
 // interface FooBar {
 // 	Hello: string
 // 	World: number
@@ -28,6 +28,15 @@ dotenv.config()
 
 const ytRegEx = /.*(?:(?:youtu.be\/)|(?:v\/)|(?:\/u\/\w\/)|(?:embed\/)|(?:watch\?))\??v?=?([^#\&\?]*).*/
 const urlRegEx = /(https?: \/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/
+ytdl.setToken({
+	spotify: {
+		client_id: "7ada486c7ff64752bc36713834e05d52",
+		client_secret: "d928da6ef9714362849a91817d1c6e6b",
+		market: "US"
+		
+	}
+})
+
 const opts = {
 	maxResults: 10,
 	key: process.env.YOUTUBEKEY,
@@ -126,7 +135,7 @@ export class Player extends BaseModule {
 		try {
 			let queue = await this.getQueue(guildId)
 				
-				if (!queue[0].repeat || force) {
+				if (queue[0] && !queue[0].repeat || force) {
 					queue.shift();
 					await this.setQueue(guildId, queue)
 				}
@@ -138,7 +147,7 @@ export class Player extends BaseModule {
 					return;
 				};
 				
-				await this.play(guildId);
+				await this.connect(guildId);
 			
 		} catch (e) {
 			this.log('Skip error:', e)
@@ -229,9 +238,10 @@ export class Player extends BaseModule {
 				// Join channel
 				case (this.reactions[6]):
 					let guild = await this.client.guilds.fetch(guildId)
-					let newChannelId = (await guild.members.fetch(user.id)).voice.channelId
+					const member = await guild.members.fetch(user.id)
+					let newChannel = member.voice.channel 
 					let Oldconnection = getVoiceConnection(guildId);
-					if (Oldconnection.joinConfig.channelId == newChannelId) break;
+					if (Oldconnection.joinConfig.channelId == newChannel.id) break;
 					if (Oldconnection) Oldconnection.destroy();
 				
 					if (player.state.status !== AudioPlayerStatus.Idle) {
@@ -240,11 +250,11 @@ export class Player extends BaseModule {
 				
 					
 					let newConnection = joinVoiceChannel({
-						channelId: newChannelId,
+						channelId: newChannel.id,
 						guildId: guildId,
-						adapterCreator: guild.voiceAdapterCreator
+						adapterCreator: guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator
 					})
-					this.play(guildId, newConnection)
+					this.connect(guildId, newConnection)
 					break;
 				default:
 					break
@@ -290,9 +300,7 @@ export class Player extends BaseModule {
 						this.blockedUsers.set(member.id, false)
 						clearTimeout(timeoutId);
 						messageCollector.stop()
-						if (!chooseMsg.deleted) {
-							await chooseMsg.delete();
-						}
+						this.client.utils.deleteMessageTimeout(chooseMsg, 10)
 					} catch (e) {
 						this.log('Remove choose msg error', e)
 					}
@@ -300,7 +308,7 @@ export class Player extends BaseModule {
 				messageCollector.on('collect', (m) => {
 					if (m.member.user.id !== member.user.id) return;
 					if (m.author.bot) return;
-					if(!m.deleted) m.delete()
+					this.client.utils.deleteMessageTimeout(m, 10)
 				
 					switch (m.content.toLocaleLowerCase()) {
 
@@ -358,7 +366,7 @@ export class Player extends BaseModule {
 		this.playerControllMessages.set(guildId, controllsMessage)
 		await this.initControlls(guildId)
 	}
-	async addToQueue(message: Message) {
+	async search(message: Message) {
 		try {
 			if (!message.member.voice.channel) {
 				const msg = await message.channel.send({
@@ -382,13 +390,13 @@ export class Player extends BaseModule {
 				if (message.content.match(ytRegEx)) url = `https://www.youtube.com/watch?v=${url.match(ytRegEx)[1]}`
 				// https://open.spotify.com/track/7IhKkWrdn7WEfWj0gQ3ihM?si=9f7b55e33f8d4f65
 				const validateUrl = await ytdl.validate(url)
-				console.log(validateUrl)
+				this.log("URL Type:", validateUrl)
 				if (validateUrl !== "yt_video" && validateUrl !== "sp_track") {
 					const msg = await message.channel.send('Неправильная ссылка.')
 					this.client.utils.deleteMessageTimeout(msg, 5000);
 					return false;
 				};
-				let videoDetails: ytdl.InfoData;
+				let videoDetails: ytdl.YouTubeVideo;
 				if (validateUrl == "sp_track") {
 					if (ytdl.is_expired()) {
 						await ytdl.refreshToken() // This will check if access token has expired or not. If yes, then refresh the token.
@@ -397,60 +405,55 @@ export class Player extends BaseModule {
 					let searched = await ytdl.search(`${sp_data.name}`, {
 						limit: 1
 					})
-					videoDetails = await ytdl.video_basic_info(searched[0].url)
-					console.log(videoDetails)
-				} else videoDetails = await ytdl.video_basic_info(url)
-				song.title = videoDetails.video_details.title;
-				song.link = videoDetails.video_details.url;
-				song.duration = videoDetails.video_details.durationRaw;
-				song.thumbnail = videoDetails.video_details.thumbnails[3].url;
+					videoDetails = searched[0]
+				} else videoDetails = (await ytdl.video_basic_info(url)).video_details
+				song.title = videoDetails.title;
+				song.link = videoDetails.url;
+				song.duration = videoDetails.durationRaw;
+				song.thumbnail = videoDetails.thumbnails.pop().url;
+
+			} else {
+				let search = await this.searchTrack(message.content)
+				if (!search || search.length == 0) {
+					const msg = await message.channel.send('Трек не найден.')
+					this.client.utils.deleteMessageTimeout(msg, 5000);
+					return false;
+				};
+				this.blockedUsers.set(message.member.id, true)
+				let selectedTrack = await this.sendChooseMessage(message.member, <TextChannel>message.channel, search)
+				if (selectedTrack == -1) return;
+				const videoBasicInfo = await ytdl.video_basic_info(search[selectedTrack].url)
+				song.title = search[selectedTrack].title
+				song.link = search[selectedTrack].url
+				song.duration = videoBasicInfo.video_details.durationRaw
+				song.thumbnail = videoBasicInfo.video_details.thumbnails[3].url
 				
-				let queue: Queue = {}
-				if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
-				if (queue.hasOwnProperty(guildId)) {
-					const updatedQueue = queue[guildId];
-					updatedQueue.push(song)
-					queue[guildId] = updatedQueue;
-					db.push('/queue', queue)
-					await this.updateControllMessage(guildId)
-				}
-				return true
 			}
-			let search = await this.searchTrack(message.content)
-			if (!search || search.length == 0) {
-				const msg = await message.channel.send('Трек не найден.')
-				this.client.utils.deleteMessageTimeout(msg, 5000);
-				return false;
-			};
-			this.blockedUsers.set(message.member.id, true)
-			let selectedTrack = await this.sendChooseMessage(message.member, <TextChannel>message.channel, search)
-			if (selectedTrack == -1) return;
-			const videoBasicInfo = await ytdl.video_basic_info(search[selectedTrack].url)
-			song.title = search[selectedTrack].title
-			song.link = search[selectedTrack].url
-			song.duration = videoBasicInfo.video_details.durationRaw
-			song.thumbnail = videoBasicInfo.video_details.thumbnails[3].url
 			
-			let queue: Queue = {}
-			if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
-			if (queue.hasOwnProperty(guildId)) {
-				const updatedQueue = queue[guildId];
-				updatedQueue.push(song)
-				queue[guildId] = updatedQueue;
-				db.push('/queue', queue)
-				await this.updateControllMessage(guildId)
-
-				return true;
-			}
-			queue[guildId] = [song]
-			db.push('/queue', queue)
-
-			await this.updateControllMessage(guildId)
+			await this.addToQueue(song, guildId);
 			return true;
 		} catch (e) {
-			this.log('Add to queue error:', e)
+			this.log('Search error:', e)
 		}
 	}
+	async addToQueue(song: Song, guildId: string) {
+
+		let queue: Queue = {}
+		if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
+		if (queue.hasOwnProperty(guildId)) {
+			const updatedQueue = queue[guildId];
+			updatedQueue.push(song)
+			queue[guildId] = updatedQueue;
+			db.push('/queue', queue)
+
+		} else {
+			queue[guildId] = [song]
+			db.push('/queue', queue)	
+		}
+
+		await this.updateControllMessage(guildId)
+	}
+	
 	async updateControllMessage(guildId: string) {
 		const msg = this.playerControllMessages.get(guildId);
 		if (!msg) return;
@@ -515,7 +518,7 @@ export class Player extends BaseModule {
 			this.log('Shuffle Error:', e)
 		}
 	}
-	async searchAndPlayOrAddToQueue(message: Message) {
+	async play(message: Message) {
 		try {
 			if (message.channelId !== this.channels.get(message.guildId)) return;
 			if((await this.client.checkBlackListUser(message.author.id)) !== null) {
@@ -526,7 +529,7 @@ export class Player extends BaseModule {
 		}
 			if (this.blockedUsers.get(message.member.id) == true) return;
 			this.client.utils.deleteMessageTimeout(message, 1000)
-			const search = await this.addToQueue(message);
+			const search = await this.search(message);
 			if (!search) return;
 			if (this.player.has(message.guildId)) {
 				const player = this.player.get(message.guildId)
@@ -545,16 +548,16 @@ export class Player extends BaseModule {
 				connection = joinVoiceChannel({
 					channelId: message.member.voice.channel.id,
 					guildId: message.guild.id,
-					adapterCreator: message.guild.voiceAdapterCreator
+					adapterCreator: message.guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator
 				})
 			}
-			await this.play(message.guildId, connection)
+			await this.connect(message.guildId, connection)
 		
 		} catch (e) {
-			this.log('Search of add to queue and play error:', e)
+			this.log('Play error:', e)
 		}
 	};
-	async play(guildId: string, connection?: VoiceConnection) {
+	async connect(guildId: string, connection?: VoiceConnection) {
 		if (!connection) connection = getVoiceConnection(guildId)
 			
 		if (!connection) return;

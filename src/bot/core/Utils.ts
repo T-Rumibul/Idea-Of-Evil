@@ -1,6 +1,6 @@
 // import { Timer } from '../utils/Timer';
 
-import { Guild, GuildChannel, GuildMember, Message, TextBasedChannels } from 'discord.js';
+import { Guild, GuildMember, Message, TextChannel } from 'discord.js';
 import { IOEClient } from './IOEClient';
 export interface Utils {
 	isAdmin(member: GuildMember): Boolean;
@@ -44,10 +44,11 @@ export class Utils {
 		const member = await guild.members.fetch(usedID);
 		return member;
 	}
-	public async getChannelFromMentions(mention: string, guild: Guild): Promise<TextBasedChannels> {
+	public async getChannelFromMentions(mention: string, guild: Guild): Promise<TextChannel> {
 		let channelID = mention.replace(/([^0-9])+/g, '');
 		const channel = await guild.channels.fetch(channelID);
 		if (!channel.isText()) return null;
+		if(channel.type != "GUILD_TEXT") return null
 		return channel;
 	}
 	public async deleteMessageTimeout(message: Message, timeout: number) {

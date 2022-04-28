@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, Presence, Intents } from 'discord.js';
+import { Client, GuildMember, Intents, Message, Presence } from 'discord.js';
 import { Utils } from './Utils';
 import { db, DB } from './DataBase';
 import { Commands, commands } from '@bot/modules/Commands';

@@ -2,9 +2,10 @@ import { BaseModule } from '@bot/core/BaseModule';
 import { IOEClient } from '@bot/core/IOEClient';
 import {
 	GuildMember,
+	Message,
 	MessageAttachment,
 	MessageEmbed,
-	TextBasedChannels,
+	TextChannel,
 
 } from 'discord.js';
 import jimp from 'jimp';
@@ -25,7 +26,7 @@ export class Welcomer extends BaseModule {
 		if (!channel || !channel.isText()) return;
 		await this.sendWelcomeMesssage(member, channel);
 	}
-	async sendWelcomeMesssage(member: GuildMember, channel: TextBasedChannels) {
+	async sendWelcomeMesssage(member: GuildMember, channel: TextChannel) {
 		if (channel.type != "GUILD_TEXT") {
 			this.log('Error: Channel Type is not GUILD_TEXT');
 			return;
@@ -66,7 +67,7 @@ export class Welcomer extends BaseModule {
 				embeds: [embed],
 				files: [image]
 			})
-			.then((message) => this.log(`Sent message: ${message.content}`))
+			.then((message: Message) => this.log(`Sent message: ${message.content}`))
 			.catch(this.log);
 	}
 }
