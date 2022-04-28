@@ -1,5 +1,5 @@
 FROM node:16-alpine
 WORKDIR /
 COPY . .
-RUN yarn install
+RUN npm install && npm run build
 CMD ["npm", "start"]

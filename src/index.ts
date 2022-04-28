@@ -1,3 +1,4 @@
+import './paths'
 import { run as runApi } from './api/';
 import { run as runBot } from './bot/';
 import axios from 'axios';

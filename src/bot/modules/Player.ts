@@ -6,7 +6,7 @@ import yts from 'yt-search';
 import dotenv from 'dotenv';
 import { JsonDB } from 'node-json-db';
 import { Config } from 'node-json-db/dist/lib/JsonDBConfig'
-import { AudioPlayer,  AudioPlayerStatus, createAudioPlayer, createAudioResource, DiscordGatewayAdapterCreator, getVoiceConnection, joinVoiceChannel, NoSubscriberBehavior, StreamType, VoiceConnection } from '@discordjs/voice';
+import { AudioPlayer,  AudioPlayerStatus, createAudioPlayer, createAudioResource, DiscordGatewayAdapterCreator, getVoiceConnection, joinVoiceChannel, NoSubscriberBehavior, VoiceConnection } from '@discordjs/voice';
 import * as ytdl from 'play-dl'
 
 const db = new JsonDB(new Config("db", true, false, '/'));
