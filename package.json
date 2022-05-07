@@ -8,7 +8,7 @@
         "node": "16.x"
     },
     "scripts": {
-        "dev": "npx && set dev=dev && nodemon --ignore db.json --exec ts-node -r tsconfig-paths/register  src/index.ts",
+        "dev": "set dev=dev && nodemon --ignore db.json --exec ts-node -r tsconfig-paths/register  src/index.ts",
         "start": "node dist/index.js",
         "build": "tsc"
     },

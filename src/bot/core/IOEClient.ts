@@ -37,25 +37,25 @@ export class IOEClient extends Client {
 
 		
 	}
-	public async syncDB() {
+	public async syncDB(): Promise<void> {
 		this.DB.guild.write();
 	}
-	public async setPrefix(id: string, value: string) {
+	public async setPrefix(id: string, value: string): Promise<void> {
 		const guildData = await this.DB.guild.get(id);
 		guildData.prefix = value;
 		await this.DB.guild.set(id, guildData);
 	}
-	public async getPrefix(id: string) {
+	public async getPrefix(id: string): Promise<string> {
 		const guildData = await this.DB.guild.get(id);
 		return guildData.prefix;
 	}
-	public async setMusicChannel(guildId: string, channelId: string) {
+	public async setMusicChannel(guildId: string, channelId: string): Promise<void> {
 		const guildData = await this.DB.guild.get(guildId);
 		guildData.musicChannel = channelId;
 		await this.DB.guild.set(guildId, guildData);
 		this.DB.guild.write();
 	}
-	public async blackListUser(id: string, reason: string) {
+	public async blackListUser(id: string, reason: string): Promise<void> {
 		const profileData = await this.DB.profile.get(id);
 		profileData.ban = true;
 		profileData.banReason = reason;
@@ -93,12 +93,12 @@ export class IOEClient extends Client {
 		guildData.welcomeChannel = channelId;
 		await this.DB.guild.set(guildId, guildData);
 	 }
-	public async getWelcomeChannel(guildId: string) {
+	public async getWelcomeChannel(guildId: string): Promise<string> {
 		const guildData = await this.DB.guild.get(guildId);
 		return guildData.welcomeChannel;
 
 	}
-	public registerModules() {
+	public registerModules(): void {
 		this.modules = {
 			Commands: commands(this),
 			Welcomer: welcomer(),
