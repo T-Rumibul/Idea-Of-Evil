@@ -1,6 +1,8 @@
 import { GuildMember, MessageEmbed, TextChannel } from 'discord.js';
 
-import { CustomArgs } from '@bot/modules/Commands';
+import { CommandCategory, CustomArgs } from '@bot/modules/Commands';
+
+export const category: CommandCategory = "info"
 export const adminOnly = true;
 export const builder = ['admin'];
 export const aliases = ['perm']

@@ -1,9 +1,11 @@
 import { GuildMember, TextChannel } from 'discord.js';
-import { CustomArgs } from '@bot/modules/Commands';
+import { CommandCategory, CustomArgs } from '@bot/modules/Commands';
+
+
 import { getLogger } from '@bot/utils/Logger';
 const log = getLogger('BOT:Commands');
 export const adminOnly = true;
-
+export const category: CommandCategory = "info"
 export const exec = async (caller: GuildMember, args: string[], { Message, Client }: CustomArgs) => {
 	try {
 		if ((Message.channel.type = 'GUILD_TEXT')) {

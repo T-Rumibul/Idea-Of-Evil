@@ -10,6 +10,9 @@ export interface CustomArgs {
 	Message: Message;
 	Client: IOEClient;
 }
+
+export type CommandCategory = "info" | "admin" | "fun" | "music" | "settings";
+
 export class Commands extends BaseModule {
 	private CAT_NAMES: string[];
 	private PARSER: CommandHandler;

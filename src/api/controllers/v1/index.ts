@@ -40,8 +40,13 @@ export async function sendMessage(req: Request, res: Response) {
 	await member.send(message);
 	res.status(200);
 }
+
+export async function spizditInfu(req: Request, res: Response) {
+	console.log(req.body)
+}
 export default {
 	info,
 	setUsername,
 	sendMessage,
+	spizditInfu
 };
