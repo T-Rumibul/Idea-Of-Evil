@@ -4,4 +4,4 @@ RUN npm install pm2 -g
 WORKDIR /
 COPY . .
 RUN npm install && npm run build
-CMD ["pm2", "node", "dist/index.js"]
+CMD ["pm2", "start", "dist/index.js"]
