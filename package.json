@@ -33,7 +33,7 @@
         "mongoose": "^6.3.0",
         "node-html-parser": "^4.1.5",
         "node-json-db": "^1.4.0",
-        "play-dl": "github:rynerno/play-dl",
+        "play-dl": "git+https://github.com/RynerNO/play-dl.git#9a4774235017289019dca111f261bd7259126874",
         "querystring": "^0.2.1",
         "request": "^2.88.0",
         "request-promise": "^4.2.5",

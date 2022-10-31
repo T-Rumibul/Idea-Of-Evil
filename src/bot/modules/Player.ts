@@ -115,7 +115,7 @@ export class Player extends BaseModule {
 			// 	return song.results;
 			// }
 			const song = await yts(track)
-			if (song.videos.length > 0) {
+			if (song && song.videos.length > 0) {
 				return song.videos;
 			}
 		} catch (err) {
