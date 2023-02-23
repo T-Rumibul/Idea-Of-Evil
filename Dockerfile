@@ -1,4 +1,4 @@
-FROM node:19
+FROM node:19-alpine
 RUN apk add g++ make py3-pip
 RUN npm install pm2 -g
 WORKDIR /
