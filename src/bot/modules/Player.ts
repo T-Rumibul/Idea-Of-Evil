@@ -155,7 +155,7 @@ export class Player extends BaseModule {
 	}
 	async getQueue(guildId: string) {
 		if (db.exists('/queue')) {
-			let queue = db.getObject<Queue>('/queue')
+			let queue = await db.getObject<Queue>('/queue')
 			if (!queue[guildId]) {
 				queue[guildId] = []
 				db.push('/queue', queue)
@@ -172,7 +172,7 @@ export class Player extends BaseModule {
 	}
 	async setQueue(guildId: string, songs: Song[]) {
 		await this.getQueue(guildId);
-		let queue = db.getObject<Queue>('/queue');
+		let queue = await db.getObject<Queue>('/queue');
 		queue[guildId] = songs
 		db.push('/queue', queue)
 		return queue[guildId]
@@ -204,7 +204,7 @@ export class Player extends BaseModule {
 				
 					player.stop(true);
 					if (db.exists('/queue')) {
-						let queue = db.getObject<Queue>('/queue')
+						let queue = await db.getObject<Queue>('/queue')
 						queue[guildId] = []
 						db.push('/queue', queue)
 					}
@@ -444,7 +444,7 @@ export class Player extends BaseModule {
 	async addToQueue(song: Song, guildId: string) {
 
 		let queue: Queue = {}
-		if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
+		if (db.exists('/queue')) queue = await db.getObject<Queue>('/queue')
 		if (queue.hasOwnProperty(guildId)) {
 			const updatedQueue = queue[guildId];
 			updatedQueue.push(song)
@@ -502,7 +502,7 @@ export class Player extends BaseModule {
 	async removeFromQueue(guildId: string) {
 		try {
 			let queue: Queue = {}
-			if (db.exists('/queue')) queue = db.getObject<Queue>('/queue')
+			if (db.exists('/queue')) queue = await db.getObject<Queue>('/queue')
 			if (queue.hasOwnProperty(guildId)) {
 				let updatedQueue = queue[guildId]
 				updatedQueue.shift();
