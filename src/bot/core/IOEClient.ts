@@ -10,12 +10,14 @@ import ReactionAdd from '@bot/events/ReactionAdd';
 import PresenceUpdate from '@bot/events/PresenceUpdate';
 import { getLogger } from '@bot/utils/Logger';
 import { memberProfiles, MemberProfiles } from '@bot/modules/MemberProfiles';
+import { SlashCommands, slashCommands } from '@bot/modules/SlashCommands';
 
 export interface IOEClient extends Client {
 	utils: Utils;
 	log(string: string, payload?: any): void;
 	modules: {
 		Commands: Commands;
+		SlashCommands: SlashCommands;
 		Welcomer: Welcomer;
 		MemberProfiles: MemberProfiles;
 		Player: Player
@@ -101,6 +103,7 @@ export class IOEClient extends Client {
 	public registerModules(): void {
 		this.modules = {
 			Commands: commands(this),
+			SlashCommands: slashCommands(this),
 			Welcomer: welcomer(),
 			MemberProfiles: memberProfiles(this),
 			Player: player(this)
