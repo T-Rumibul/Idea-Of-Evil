@@ -27,7 +27,7 @@
         "ffmpeg-static": "^5.1.0",
         "jimp": "^0.22.5",
         "lodash": "^4.17.21",
-        "mongoose": "^6.10.0",
+        "mongoose": "^6.4.6",
         "node-html-parser": "^6.1.5",
         "node-json-db": "^2.1.4",
         "play-dl": "git+https://github.com/RynerNO/play-dl.git#9a4774235017289019dca111f261bd7259126874",
