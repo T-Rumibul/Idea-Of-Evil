@@ -1,4 +1,4 @@
-import { GuildMember, MessageEmbed, TextChannel } from 'discord.js';
+import { GuildMember, TextChannel } from 'discord.js';
 
 import { CommandCategory, CustomArgs } from '@bot/modules/Commands';
 

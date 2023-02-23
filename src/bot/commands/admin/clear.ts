@@ -1,4 +1,4 @@
-import { GuildMember, TextChannel } from 'discord.js';
+import { ChannelType, GuildMember, TextChannel } from 'discord.js';
 import { CommandCategory, CustomArgs } from '@bot/modules/Commands';
 
 
@@ -8,7 +8,7 @@ export const adminOnly = true;
 export const category: CommandCategory = "info"
 export const exec = async (caller: GuildMember, args: string[], { Message, Client }: CustomArgs) => {
 	try {
-		if ((Message.channel.type = 'GUILD_TEXT')) {
+		if (Message.channel.type !== ChannelType.GuildText) return; {
 			const channel = <TextChannel>Message.channel;
 			const amount = Number(args[0]);
 			if(!Number.isInteger(amount) || amount <= 0) return;

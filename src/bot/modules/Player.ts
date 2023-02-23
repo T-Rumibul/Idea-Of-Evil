@@ -1,6 +1,6 @@
 import { BaseModule } from '@bot/core/BaseModule';
 import { IOEClient } from '@bot/core/IOEClient';
-import { GuildMember, Message, MessageEmbed, MessageReaction, PartialMessageReaction, PartialUser, ReactionCollector, TextChannel, User } from 'discord.js';
+import { GuildMember, Message, EmbedBuilder, MessageReaction, PartialMessageReaction, PartialUser, ReactionCollector, TextChannel, User, ChannelType, GuildTextBasedChannel } from 'discord.js';
 
 import yts from 'yt-search';
 import dotenv from 'dotenv';
@@ -97,7 +97,7 @@ export class Player extends BaseModule {
 				if (!guild) return;
 				const channel = await guild.channels.fetch(channelId)
 
-				if (channel && channel.type === "GUILD_TEXT" && channel.isText()) {
+				if (channel && channel.type === ChannelType.GuildText) {
 					await this.sendControllMessage(channel, guildId)
 				}
 
@@ -354,12 +354,12 @@ export class Player extends BaseModule {
 	async sendControllMessage(channel: TextChannel, guildId: string) {
 		const msg = this.playerControllMessages.get(guildId);
 		if (msg) return;
-		if ((await channel.messages.fetch({}, {
+		if ((await channel.messages.fetch({
 			cache: true
-		})).size > 0) await channel.bulkDelete((await channel.messages.fetch({}, {
+		})).size > 0) await channel.bulkDelete((await channel.messages.fetch({
 			cache: true
 		})).size);
-		const embed = new MessageEmbed(embedTemplate);
+		const embed = new EmbedBuilder(embedTemplate);
 		const controllsMessage = await channel.send({
 			embeds: [embed]
 		})
@@ -368,7 +368,12 @@ export class Player extends BaseModule {
 	}
 	async search(message: Message) {
 		try {
+
+			// For type safety
+			if (message.channel.type !== ChannelType.GuildText) return;
+
 			if (!message.member.voice.channel) {
+				
 				const msg = await message.channel.send({
 					embeds: [{ "description": "❌ **Вы должны находиться в голосовом канале!**", "color": 8340425, }]
 				});
@@ -519,7 +524,10 @@ export class Player extends BaseModule {
 		}
 	}
 	async play(message: Message) {
+		// For type safety
+		if (message.channel.type !== ChannelType.GuildText) return;
 		try {
+			
 			if (message.channelId !== this.channels.get(message.guildId)) return;
 			if((await this.client.checkBlackListUser(message.author.id)) !== null) {
 				const msg = await message.channel.send(`<@${message.author.id}> Вы внесены в черный список и не можете использовать команды этого бота. \n Причина: ${await this.client.checkBlackListUser(message.author.id)}`);

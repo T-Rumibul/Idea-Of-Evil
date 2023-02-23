@@ -5,7 +5,7 @@
     "author": "RynerNO",
     "license": "MIT",
     "engines": {
-        "node": "16.x"
+        "node": "19.x"
     },
     "scripts": {
         "dev": "set dev=dev && nodemon --ignore db.json --exec npx ts-node -r tsconfig-paths/register  src/index.ts",
@@ -14,7 +14,6 @@
     },
     "dependencies": {
         "@discordjs/opus": "^0.9.0",
-        "@discordjs/rest": "^0.4.1",
         "@discordjs/voice": "^0.9.0",
         "@typegoose/typegoose": "^9.8.1",
         "axios": "^0.27.2",
@@ -22,14 +21,12 @@
         "command-handler-discord": "^3.0.2",
         "cors": "^2.8.5",
         "debug": "^4.3.2",
-        "discord-api-types": "^0.32.0",
-        "discord.js": "^13.6.0",
+        "discord.js": "^14.7.1",
         "dotenv": "^10.0.0",
         "express": "^4.17.1",
         "ffmpeg-static": "^4.4.0",
         "jimp": "^0.16.1",
         "lodash": "^4.17.21",
-        "module-alias": "^2.2.2",
         "mongoose": "^6.3.0",
         "node-html-parser": "^4.1.5",
         "node-json-db": "^1.4.0",
@@ -44,6 +41,7 @@
         "yt-search": "^2.10.3"
     },
     "devDependencies": {
+        "@discordjs/rest": "^1.5.0",
         "@types/cors": "^2.8.12",
         "@types/debug": "^4.1.7",
         "@types/express": "^4.17.13",
@@ -54,6 +52,7 @@
         "@types/yt-search": "^2.3.2",
         "@typescript-eslint/eslint-plugin": "^4.31.1",
         "benchmark": "^2.1.4",
+        "discord-api-types": "^0.37.35",
         "eslint": "7.32.0",
         "eslint-config-airbnb-typescript": "^14.0.0",
         "eslint-config-prettier": "^8.3.0",
@@ -61,6 +60,7 @@
         "eslint-plugin-import": "2.24.2",
         "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-promise": "^5.1.0",
+        "module-alias": "^2.2.2",
         "nodemon": "^2.0.12",
         "prettier": "^2.4.1"
     }

@@ -3,9 +3,10 @@ import { IOEClient } from '@bot/core/IOEClient';
 import {
 	GuildMember,
 	Message,
-	MessageAttachment,
-	MessageEmbed,
+	AttachmentBuilder,
+	EmbedBuilder,
 	TextChannel,
+	ChannelType,
 
 } from 'discord.js';
 import jimp from 'jimp';
@@ -27,7 +28,7 @@ export class Welcomer extends BaseModule {
 		await this.sendWelcomeMesssage(member, channel);
 	}
 	async sendWelcomeMesssage(member: GuildMember, channel: TextChannel) {
-		if (channel.type != "GUILD_TEXT") {
+		if (channel.type != ChannelType.GuildText) {
 			this.log('Error: Channel Type is not GUILD_TEXT');
 			return;
 		}
@@ -37,7 +38,7 @@ export class Welcomer extends BaseModule {
 		let count_font = await jimp.loadFont(path.join(ASSETS_PATH, 'font.fnt'));
 		let avatar;
 		if (member.user.avatarURL) {
-			avatar = await jimp.read(member.user.avatarURL({ format: 'png' }));
+			avatar = await jimp.read(member.user.avatarURL({ forceStatic: true }));
 		} else {
 			// Если дауничь без авы
 			avatar = await jimp.read(member.user.defaultAvatarURL);
@@ -53,11 +54,11 @@ export class Welcomer extends BaseModule {
 		avatar.resize(137, 137);
 		avatar.mask(avatar_mask, 0, 0);
 		background.composite(avatar, 30, 60);
-		let image = new MessageAttachment(
+		let image = new AttachmentBuilder(
 			await background.getBufferAsync(jimp.MIME_PNG),
-			'final.png'
+			{ name: 'final.png' }
 		);
-		const embed = new MessageEmbed()
+		const embed = new EmbedBuilder()
 			.setColor(12387078)
 			.setImage('attachment://final.png');
 

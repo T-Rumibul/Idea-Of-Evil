@@ -1,14 +1,17 @@
-import { GuildMember, TextChannel } from 'discord.js';
+import { ChannelType, GuildMember, TextChannel } from 'discord.js';
 import { CustomArgs } from '@bot/modules/Commands';
 export const adminOnly = true;
 export const builder = ['set'];
 export const exec = async (caller: GuildMember, args: string[], { Message, Client }: CustomArgs) => {
+    console.log("Music channel")
     if (!args[0]) return;
+    // For type safety
+	if (Message.channel.type !== ChannelType.GuildText) return;
     const channel: TextChannel = await Client.utils.getChannelFromMentions(args[0], caller.guild);
     if (!channel) return;
-    if (channel.type !== "GUILD_TEXT") return;
+    if (channel.type !== ChannelType.GuildText) return;
 
-    if ((await channel.messages.fetch({}, {
+    if ((await channel.messages.fetch({
         cache: true
     })).size > 0) {
         const msg = await Message.channel.send(

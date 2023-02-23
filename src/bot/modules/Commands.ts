@@ -1,9 +1,11 @@
 import { createHandler, CommandHandler } from 'command-handler-discord';
-import { Message } from 'discord.js';
+import { ChannelType, Interaction, Message } from 'discord.js';
 import { readdirSync } from 'fs';
 import path from 'path';
 import { IOEClient } from '@bot/core/IOEClient';
 import { BaseModule } from '@bot/core/BaseModule';
+import { REST } from "@discordjs/rest"
+import { Routes } from "discord-api-types/v9"
 const COMMANDS_PATH = path.join(__dirname, '../commands');
 const NAME = 'Commands';
 export interface CustomArgs {
@@ -27,6 +29,7 @@ export class Commands extends BaseModule {
 	}
 	private async init() {
 		this.log('Initialization');
+
 		this.CAT_NAMES = readdirSync(COMMANDS_PATH, { withFileTypes: true })
 			.filter((dirent) => dirent.isDirectory())
 			.map((dirent) => dirent.name);
@@ -40,7 +43,17 @@ export class Commands extends BaseModule {
 			quotesType: '"',
 			useQuotes: true,
 		});
+
+
+		// const rest = new REST({ version: '9' }).setToken(this.client.token);
+		// await rest.put(
+		// Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+		// { body: commands },
+		// );
+		// console.log(this.PARSER.Commands)
+
 		this.registerEvents();
+
 		this.log('Initialization Completed');
 		
 	}
@@ -51,8 +64,24 @@ export class Commands extends BaseModule {
 			if (message.channelId === musicChannels.get(message.guildId)) return;
 			this.parse(message);
 		});
+		this.client.on("interactionCreate", async (interaction: Interaction) => {
+			if (!interaction.isCommand()) return;
+			const musicChannels = await this.client.getMusicChannels()
+			if (interaction.channelId === musicChannels.get(interaction.guildId)) return
+			this.executeInteraction(interaction)
+
+		})
+	}
+	async executeInteraction(interaction: Interaction) {
+		if (interaction.isAutocomplete()) {
+			
+		}
 	}
 	async parse(message: Message) {
+		// For type safety
+		console.log(message.channel.type === ChannelType.GuildText)
+		if (message.channel.type !== ChannelType.GuildText) return;
+		
 		const prefix = await this.client.getPrefix(message.guild.id)
 		let mContent = message.content
 		if (mContent.startsWith(`<@${this.client.user.id}`)) {

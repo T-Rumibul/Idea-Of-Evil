@@ -1,4 +1,4 @@
-import { Client, GuildMember, Intents, Message, Presence } from 'discord.js';
+import { ActivityType, Client, GuildMember, IntentsBitField, Message, Presence } from 'discord.js';
 import { Utils } from './Utils';
 import { db, DB } from './DataBase';
 import { Commands, commands } from '@bot/modules/Commands';
@@ -26,7 +26,7 @@ export class IOEClient extends Client {
 	private DB: DB;
 	constructor() {
 		super({
-			intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
+			intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages, IntentsBitField.Flags.GuildVoiceStates, IntentsBitField.Flags.GuildMessageReactions, IntentsBitField.Flags.MessageContent],
 		});
 		this.log = getLogger('BOT:Client');
 		this.log('Initialization');
@@ -126,7 +126,7 @@ export class IOEClient extends Client {
 
 		this.on('ready', async () => {
 			this.registerModules()
-			this.user.setActivity(`серверов: ${this.guilds.cache.size}`,{type: "WATCHING"})
+			this.user.setActivity(`серверов: ${this.guilds.cache.size}`,{type: ActivityType.Watching})
 		})
 	}
 }

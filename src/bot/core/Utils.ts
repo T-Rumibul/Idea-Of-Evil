@@ -1,6 +1,7 @@
 // import { Timer } from '../utils/Timer';
 
-import { Guild, GuildMember, Message, TextChannel } from 'discord.js';
+import { ChannelType } from 'discord-api-types/v9';
+import { Guild, GuildMember, Message, PermissionFlagsBits, TextChannel } from 'discord.js';
 import { IOEClient } from './IOEClient';
 export interface Utils {
 	isAdmin(member: GuildMember): Boolean;
@@ -12,7 +13,7 @@ export class Utils {
 	}
 	public isAdmin(member: GuildMember) {
 		if (this.isOwner(member)) return true;
-		if (member.permissions.has('ADMINISTRATOR', true)) {
+		if (member.permissions.has(PermissionFlagsBits.Administrator, true)) {
 			return true;
 		}
 		const adminRoles: any[] = [];
@@ -47,14 +48,13 @@ export class Utils {
 	public async getChannelFromMentions(mention: string, guild: Guild): Promise<TextChannel> {
 		let channelID = mention.replace(/([^0-9])+/g, '');
 		const channel = await guild.channels.fetch(channelID);
-		if (!channel.isText()) return null;
-		if(channel.type != "GUILD_TEXT") return null
+		if(channel.type !== ChannelType.GuildText) return null
 		return channel;
 	}
 	public async deleteMessageTimeout(message: Message, timeout: number) {
 		setTimeout(async () => {
 			try {
-				if (!message) return;
+				if (!message || message.channel.type !== ChannelType.GuildText) return;
 				const msg = await message.channel.messages.cache.get(message.id)
 				if(!msg) return;
 				if (msg.deletable) {

@@ -1,4 +1,4 @@
-import { GuildMember, MessageActionRow, MessageButton } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import { CommandCategory, CustomArgs } from '@bot/modules/Commands';
 
 export const category: CommandCategory = "info"
