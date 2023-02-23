@@ -1,6 +1,6 @@
 import { BaseModule } from '@bot/core/BaseModule';
 import { IOEClient } from '@bot/core/IOEClient';
-import { GuildMember, Message, EmbedBuilder, MessageReaction, PartialMessageReaction, PartialUser, ReactionCollector, TextChannel, User, ChannelType, GuildTextBasedChannel } from 'discord.js';
+import { GuildMember, Message, EmbedBuilder, MessageReaction, PartialMessageReaction, PartialUser, TextChannel, User, ChannelType } from 'discord.js';
 
 import yts from 'yt-search';
 import dotenv from 'dotenv';
@@ -11,16 +11,6 @@ import * as ytdl from 'play-dl'
 
 const db = new JsonDB(new Config("db", true, false, '/'));
 db.push('/queue', [])
-// interface FooBar {
-// 	Hello: string
-// 	World: number
-// }
-//const object = { Hello: "World", World: 5 } as FooBar;
-
-//db.push("/test", object);
-
-//Will be typed as FooBar in your IDE
-//const result = db.getObject<FooBar>("/test");
 
 
 dotenv.config()
@@ -30,18 +20,17 @@ const ytRegEx = /.*(?:(?:youtu.be\/)|(?:v\/)|(?:\/u\/\w\/)|(?:embed\/)|(?:watch\
 const urlRegEx = /(https?: \/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/
 ytdl.setToken({
 	spotify: {
-		client_id: "7ada486c7ff64752bc36713834e05d52",
-		client_secret: "d928da6ef9714362849a91817d1c6e6b",
+		client_id: process.env.SPOTIFY_CLIENT_ID,
+		client_secret: process.env.SPOTIFY_CLIENT_SECRET,
+		refresh_token: process.env.SPOTIFY_REFRESH_TOKEN,
 		market: "US"
 		
+	},
+	youtube: {
+		cookie: process.env.YOUTUBE_COOKIES
 	}
 })
 
-const opts = {
-	maxResults: 10,
-	key: process.env.YOUTUBEKEY,
-	type: 'video'
-};
 const NAME = 'Player';
 type EmbedField = {
 	"name": string,

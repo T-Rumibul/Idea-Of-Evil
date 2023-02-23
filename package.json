@@ -1,6 +1,6 @@
 {
     "name": "ideaofevil",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "",
     "author": "RynerNO",
     "license": "MIT",
@@ -30,7 +30,6 @@
         "mongoose": "^6.10.0",
         "node-html-parser": "^6.1.5",
         "node-json-db": "^2.1.4",
-        "play-dl": "git+https://github.com/RynerNO/play-dl.git#9a4774235017289019dca111f261bd7259126874",
         "querystring": "^0.2.1",
         "request": "^2.88.0",
         "request-promise": "^4.2.5",
@@ -62,6 +61,7 @@
         "eslint-plugin-promise": "^6.1.1",
         "module-alias": "^2.2.2",
         "nodemon": "^2.0.20",
+        "play-dl": "^1.9.6",
         "prettier": "^2.8.4"
     }
 }

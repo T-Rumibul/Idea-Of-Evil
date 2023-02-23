@@ -79,7 +79,7 @@ export class Commands extends BaseModule {
 	}
 	async parse(message: Message) {
 		// For type safety
-		console.log(message.channel.type === ChannelType.GuildText)
+
 		if (message.channel.type !== ChannelType.GuildText) return;
 		
 		const prefix = await this.client.getPrefix(message.guild.id)
