@@ -61,7 +61,7 @@
         "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-promise": "^5.1.0",
         "module-alias": "^2.2.2",
-        "nodemon": "^2.0.12",
+        "nodemon": "^2.0.20",
         "prettier": "^2.4.1"
     }
 }
