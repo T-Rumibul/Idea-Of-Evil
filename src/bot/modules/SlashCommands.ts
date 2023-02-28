@@ -1,7 +1,7 @@
 import { BaseModule } from "@bot/core/BaseModule";
 import { IOEClient } from "@bot/core/IOEClient";
 import Commands from "@bot/commands"
-import { CommandInteraction, Guild, Interaction } from "discord.js";
+import { ChatInputCommandInteraction, CommandInteraction, Guild, Interaction } from "discord.js";
 const { REST, Routes } = require('discord.js');
 const NAME = 'SlashCommands';
 
@@ -35,7 +35,7 @@ export class SlashCommands extends BaseModule {
     }
     private registerEvents() {
         this.client.on("interactionCreate", async (interaction: Interaction) => {
-			if (!interaction.isCommand()) return;
+			if (!interaction.isChatInputCommand()) return;
 			const musicChannels = await this.client.getMusicChannels()
 			if (interaction.channelId === musicChannels.get(interaction.guildId)) return
 			this.executeInteraction(interaction)
@@ -45,7 +45,7 @@ export class SlashCommands extends BaseModule {
             await this.registerCommandsForGuild(guild)
         })
     }
-    async executeInteraction(interaction: CommandInteraction) {
+    async executeInteraction(interaction: ChatInputCommandInteraction) {
         const cmd = Commands.find((cmd) => cmd.command.name === interaction.commandName)
         if (!cmd) return;
         cmd.execute(interaction, this.client)

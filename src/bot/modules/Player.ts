@@ -97,6 +97,10 @@ export class Player extends BaseModule {
 			this.log('Init Error: ', e)
 		}
 	}
+	async updateMusicChannels() {
+		this.log('Update music channels: ', this.channels)
+		this.channels = await this.client.getMusicChannels();
+	}
 	async searchTrack(track: string) {
 		try {
 			//const song = await Search(track, opts)
@@ -342,7 +346,8 @@ export class Player extends BaseModule {
 }
 	async sendControllMessage(channel: TextChannel, guildId: string) {
 		const msg = this.playerControllMessages.get(guildId);
-		if (msg) return;
+		if (msg && msg.channelId === channel.id) return;
+		if(msg && msg.deletable) msg.delete() 
 		if ((await channel.messages.fetch({
 			cache: true
 		})).size > 0) await channel.bulkDelete((await channel.messages.fetch({

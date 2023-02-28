@@ -1,5 +1,5 @@
 import { IOEClient } from "@bot/core/IOEClient"
-import { ChannelType, CommandInteraction, PermissionFlagsBits, SlashCommandBuilder, SlashCommandIntegerOption, SlashCommandNumberOption } from "discord.js"
+import { ChannelType, ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, SlashCommandIntegerOption, SlashCommandNumberOption } from "discord.js"
 import { getLogger } from '@bot/utils/Logger';
 const log = getLogger('BOT:SlashCommands');
 
@@ -22,7 +22,7 @@ numberOption.setName("number")
 .setRequired(true)
 command.addNumberOption(numberOption)
         
-async function execute(interaction: CommandInteraction, client: IOEClient) {
+async function execute(interaction: ChatInputCommandInteraction, client: IOEClient) {
     try {
         if (interaction.channel.type !== ChannelType.GuildText) return;
         const channel = interaction.channel;
