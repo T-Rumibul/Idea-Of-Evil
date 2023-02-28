@@ -1,7 +1,6 @@
 import { ActivityType, Client, GuildMember, IntentsBitField, Message, Presence } from 'discord.js';
 import { Utils } from './Utils';
 import { db, DB } from './DataBase';
-import { Commands, commands } from '@bot/modules/Commands';
 import { Welcomer, welcomer } from '@bot/modules/Welcomer';
 import { Player, player } from '@bot/modules/Player';
 import MessageEvent from '@bot/events/Message';
@@ -16,7 +15,6 @@ export interface IOEClient extends Client {
 	utils: Utils;
 	log(string: string, payload?: any): void;
 	modules: {
-		Commands: Commands;
 		SlashCommands: SlashCommands;
 		Welcomer: Welcomer;
 		MemberProfiles: MemberProfiles;
@@ -102,7 +100,6 @@ export class IOEClient extends Client {
 	}
 	public registerModules(): void {
 		this.modules = {
-			Commands: commands(this),
 			SlashCommands: slashCommands(this),
 			Welcomer: welcomer(),
 			MemberProfiles: memberProfiles(this),
