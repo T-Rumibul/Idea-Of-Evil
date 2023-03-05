@@ -358,6 +358,7 @@ export class Player extends BaseModule {
 			embeds: [embed]
 		})
 		this.playerControllMessages.set(guildId, controllsMessage)
+		this.updateControllMessage(guildId)
 		await this.initControlls(guildId)
 	}
 	async search(message: Message) {
