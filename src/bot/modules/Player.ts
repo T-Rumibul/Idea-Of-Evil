@@ -1,12 +1,12 @@
 import { BaseModule } from '@bot/core/BaseModule';
 import { IOEClient } from '@bot/core/IOEClient';
-import { GuildMember, Message, EmbedBuilder, MessageReaction, PartialMessageReaction, PartialUser, TextChannel, User, ChannelType } from 'discord.js';
+import { GuildMember, Message, EmbedBuilder, MessageReaction, PartialMessageReaction, PartialUser, TextChannel, User, ChannelType, GatewayVoiceStateUpdateDispatchData } from 'discord.js';
 
 import yts from 'yt-search';
 import dotenv from 'dotenv';
 import { JsonDB } from 'node-json-db';
 import { Config } from 'node-json-db/dist/lib/JsonDBConfig'
-import { AudioPlayer,  AudioPlayerStatus, createAudioPlayer, createAudioResource, DiscordGatewayAdapterCreator, getVoiceConnection, joinVoiceChannel, NoSubscriberBehavior, VoiceConnection } from '@discordjs/voice';
+import { AudioPlayer,  AudioPlayerStatus, createAudioPlayer,  createAudioResource, DiscordGatewayAdapterCreator, getVoiceConnection, joinVoiceChannel, NoSubscriberBehavior, VoiceConnection, VoiceConnectionStatus } from '@discordjs/voice';
 import * as ytdl from 'play-dl'
 
 const db = new JsonDB(new Config("db", true, false, '/'));
@@ -14,7 +14,6 @@ db.push('/queue', [])
 
 
 dotenv.config()
-
 
 const ytRegEx = /.*(?:(?:youtu.be\/)|(?:v\/)|(?:\/u\/\w\/)|(?:embed\/)|(?:watch\?))\??v?=?([^#\&\?]*).*/
 const urlRegEx = /(https?: \/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/
@@ -79,6 +78,7 @@ export class Player extends BaseModule {
 	}
 	async init() {
 		try {
+			this.log('Initialization.')
 			this.channels = await this.client.getMusicChannels();
 			this.log('Music Channel: ', this.channels)
 			this.channels.forEach(async (channelId: string, guildId: string) => {
@@ -587,18 +587,37 @@ export class Player extends BaseModule {
 	
 		const resource = createAudioResource(stream.stream, { inputType: stream.type });
 		player.play(resource);
+		// Temporary fix to autopause issue
+		connection.on('stateChange', (old_state, new_state) => {
+            this.log('join', `Connection state change from', ${old_state.status}, 'to', ${new_state.status}`)
+            if (old_state.status === VoiceConnectionStatus.Ready && new_state.status === VoiceConnectionStatus.Connecting) {
+                connection.configureNetworking();
+            }
+        })
+		player.on("error", (e) => {
+			this.log("Error:", e)
+		})
+		player.on("debug", (e) => {
+			
+			this.log("Debug:", e)
+			
+		})
+		
 		connection.subscribe(this.player.get(guildId))
 		player.unpause()
+
 
 		
 	}
 	async createPlayer(guildId: string) {
 		if (!this.player.has(guildId)) {
-			const player = createAudioPlayer({
-				behaviors: {
-					noSubscriber: NoSubscriberBehavior.Pause,
-				},
-			})
+			const player = createAudioPlayer(
+			{
+			 	behaviors: {
+			 		noSubscriber: NoSubscriberBehavior.Play,
+			 	},
+			 }
+			)
 			
 			this.player.set(guildId, player);
 			

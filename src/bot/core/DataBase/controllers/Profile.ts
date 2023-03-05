@@ -1,14 +1,14 @@
 import { Profile, ProfileModel } from '../models/Profile';
 import { getLogger } from '@bot/utils/Logger';
-
+import { DataBase } from '..';
 export class ProfileController {
 	private cache: Map<string, Profile>;
 	private updated: string[];
-	private dbWriteIntervalID: NodeJS.Timeout;
+	private dbWriteIntervalID: NodeJS.Timeout; 
 	private log: (string: string, payload?: any) => void;
-	constructor() {
+	constructor(DB : DataBase) {
 		this.cache = new Map();
-		this.log = getLogger(`BOT:DB:ProfileController`);
+		this.log = DB.log;
 		this.updated = [];
 		this.init();
 	}

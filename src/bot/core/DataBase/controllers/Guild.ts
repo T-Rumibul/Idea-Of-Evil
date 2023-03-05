@@ -1,4 +1,5 @@
 import { getLogger } from '@bot/utils/Logger';
+import { DataBase } from '..';
 import { Guild, GuildModel } from '../models/Guild';
 
 export class GuildController {
@@ -6,9 +7,9 @@ export class GuildController {
 	private updated: string[];
 	private dbWriteIntervalID: NodeJS.Timeout;
 	private log: (string: string, payload?: any) => void;
-	constructor() {
+	constructor(DB : DataBase) {
 		this.cache = new Map();
-		this.log = getLogger(`BOT:DB:GuildController`);
+		this.log = DB.log;
 		this.updated = [];
 		this.init();
 	}

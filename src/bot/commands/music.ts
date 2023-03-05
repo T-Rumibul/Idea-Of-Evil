@@ -1,7 +1,7 @@
 import { IOEClient } from "@bot/core/IOEClient"
 import { ButtonBuilder, ChannelType, ChatInputCommandInteraction, CommandInteraction, ComponentType, GuildTextBasedChannel, Interaction, MessageComponentInteraction, PermissionFlagsBits, SlashCommandBuilder, SlashCommandChannelOption, SlashCommandIntegerOption, SlashCommandNumberOption, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from "discord.js"
 import { getLogger } from '@bot/utils/Logger';
-const log = getLogger('BOT:SlashCommands');
+const log = getLogger('BOT:SlashCommands').log;
 
 const command = new SlashCommandBuilder()
 command.setName("music")

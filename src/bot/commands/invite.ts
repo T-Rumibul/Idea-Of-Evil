@@ -1,7 +1,7 @@
 import { IOEClient } from "@bot/core/IOEClient"
 import { ChannelType, ChatInputCommandInteraction, CommandInteraction, SlashCommandBuilder } from "discord.js"
 import { getLogger } from '@bot/utils/Logger';
-const log = getLogger('BOT:SlashCommands');
+const log = getLogger('BOT:SlashCommands').log;
 
 const command = new SlashCommandBuilder()
 command.setName("invite")

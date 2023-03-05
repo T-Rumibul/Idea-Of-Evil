@@ -1,18 +1,19 @@
 import { ActivityType, Client, GuildMember, IntentsBitField, Message, Presence } from 'discord.js';
 import { Utils } from './Utils';
-import { db, DB } from './DataBase';
+import { db, DataBase } from './DataBase';
 import { Welcomer, welcomer } from '@bot/modules/Welcomer';
 import { Player, player } from '@bot/modules/Player';
 import MessageEvent from '@bot/events/Message';
 import GuildMemberAdd from '@bot/events/GuildMemberAdd';
 import ReactionAdd from '@bot/events/ReactionAdd';
 import PresenceUpdate from '@bot/events/PresenceUpdate';
-import { getLogger } from '@bot/utils/Logger';
+import { getLogger, Logger } from '@bot/utils/Logger';
 import { memberProfiles, MemberProfiles } from '@bot/modules/MemberProfiles';
 import { SlashCommands, slashCommands } from '@bot/modules/SlashCommands';
 
 export interface IOEClient extends Client {
 	utils: Utils;
+	logger: Logger
 	log(string: string, payload?: any): void;
 	modules: {
 		SlashCommands: SlashCommands;
@@ -23,20 +24,26 @@ export interface IOEClient extends Client {
 }
 
 export class IOEClient extends Client {
-	private DB: DB;
+	private DB: DataBase;
 	constructor() {
 		super({
 			intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages, IntentsBitField.Flags.GuildVoiceStates, IntentsBitField.Flags.GuildMessageReactions, IntentsBitField.Flags.MessageContent],
 		});
-		this.log = getLogger('BOT:Client');
-		this.log('Initialization');
-		this.utils = new Utils(this);
-		this.DB = db(this);
-		this.registerEventListeners();
+		this.logger = getLogger('BOT:Client');
+		this.init()
 		
 
 		
 	}
+	private init() {
+		this.log('Initialization');
+		this.utils = new Utils(this);
+		this.DB = db(this);
+		this.registerEventListeners();
+	}
+	 log(string: string, payload?: any): void {
+        this.logger.log(string, payload);  
+    } 
 	public async syncDB(): Promise<void> {
 		this.DB.guild.write();
 	}

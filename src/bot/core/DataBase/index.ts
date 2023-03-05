@@ -5,24 +5,23 @@ import { getLogger } from '@bot/utils/Logger';
 import { IOEClient } from '../IOEClient';
 import GuildController from './controllers/Guild';
 import ProfileController from './controllers/Profile';
+import { BaseModule } from '../BaseModule';
 
 dotenv.config();
 
-export interface DB {
+export interface DataBase extends BaseModule {
 	guild: GuildController;
 	profile: ProfileController;
 }
 
-export class DB {
-	private log: (string: string, payload?: any) => void;
-
+export class DataBase extends BaseModule {
 	private client: IOEClient;
 	constructor(client: IOEClient) {
-		this.log = getLogger(`BOT:DB`);
+		super("DataBase")
 		this.client = client;
 
-		this.guild = new GuildController();
-		this.profile = new ProfileController();
+		this.guild = new GuildController(this);
+		this.profile = new ProfileController(this);
 		this.init();
 	}
 	private async init() {
@@ -38,9 +37,9 @@ export class DB {
 			});
 	}
 }
-let DB_instance: DB;
+let DB_instance: DataBase;
 export function db(client: IOEClient) {
-	if (!DB_instance) DB_instance = new DB(client);
+	if (!DB_instance) DB_instance = new DataBase(client);
 	return DB_instance;
 }
 

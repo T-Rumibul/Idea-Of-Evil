@@ -4,7 +4,7 @@ dotenv.config();
 
 const Loggers: Map<string, Logger> = new Map();
 
-class Logger {
+export class Logger {
 	private enabled: boolean;
 	private debugger: Debug.Debugger;
 	private name: string;
@@ -26,9 +26,5 @@ export function getLogger(name: string) {
 		Loggers.set(name, new Logger(name));
 	}
 
-	const log = (message: string, data?: any) => {
-		Loggers.get(name).log(message, data);
-	};
-
-	return log;
+	return Loggers.get(name);
 }
