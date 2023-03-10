@@ -1,36 +1,29 @@
 {
-  "compilerOptions": {
-    "target":"esnext",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "noImplicitAny": true,
-    "removeComments": true,
-    "preserveConstEnums": true,
-    "experimentalDecorators":true,
-    "emitDecoratorMetadata": true,
-    "outDir": "dist",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "sourceMap": true,
-    "baseUrl": "./",
-    "paths": {
-      "@bot/*": [
-        "src/bot/*"
-      ],
-      "@api/*": [
-        "src/api/*"
-      ],
-      "@src/*": [
-        "src/minecraftApi/*"
-      ]
-    }
-  },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.spec.ts",
-    "src/bot/legacy"
-  ],
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "CommonJS",
+		"moduleResolution": "Node",
+		"noImplicitAny": true,
+		"removeComments": true,
+		"preserveConstEnums": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"noUnusedParameters": true,
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"noUnusedLocals": true,
+		"noUncheckedIndexedAccess": true,
+		"outDir": "dist",
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"sourceMap": true,
+		"baseUrl": "./",
+		"paths": {
+			"@bot/*": ["src/bot/*"],
+			"@api/*": ["src/api/*"],
+			"@src/*": ["src/minecraftApi/*"]
+		}
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "**/*.spec.ts", "src/bot/legacy"]
 }
