@@ -1,30 +1,31 @@
 import { BaseModule } from '@bot/core/BaseModule';
 import { IOEClient } from '@bot/core/IOEClient';
-import { GuildMember, Presence } from 'discord.js';
+import type { Presence } from 'discord.js';
+
 const NAME = 'MemberProfiles';
 
 export interface MemberProfiles {
 	client: IOEClient;
-	activities: Map<string, any[]>;
+	activities: Map<string, unknown[]>;
 }
 
-interface Activity {
-	name: string;
-	startAt: number;
-	endAt: number;
-}
+// interface Activity {
+// 	name: string;
+// 	startAt: number;
+// 	endAt: number;
+// }
 
-interface Sessions {
-	startAt: number;
-	endAt: number;
-	device: string;
-	activities: Activity[];
-}
+// interface Sessions {
+// 	startAt: number;
+// 	endAt: number;
+// 	device: string;
+// 	activities: Activity[];
+// }
 
-interface MemberProfile {
-	experience: number;
-	sessions: Sessions[];
-}
+// interface MemberProfile {
+// 	experience: number;
+// 	sessions: Sessions[];
+// }
 
 export class MemberProfiles extends BaseModule {
 	constructor(client: IOEClient) {
@@ -33,17 +34,19 @@ export class MemberProfiles extends BaseModule {
 		this.activities = new Map();
 	}
 
-	async addActivity(id: string, oldPresence: Presence, newPresence: Presence) {
-		let memberActivities = [];
-		if (this.activities.has(id)) memberActivities = this.activities.get(id);
+	async addActivity(id: string, oldPresence: Presence | null, newPresence: Presence) {
+		const memberActivities = this.activities.get(id);
+		if (!memberActivities) return false;
 		memberActivities.push({});
 		this.activities.set(id, memberActivities);
+		return true;
 	}
 
-	async addSession(id: string, oldPresence: Presence) {}
-	async getSessions(id: string) {
-		// const memberPresenceData = await this.client.DB.get('memberProfiles', id);
-	}
+	// async addSession(id: string, oldPresence: Presence) {}
+
+	// async getSessions(id: string) {
+	// 	// const memberPresenceData = await this.client.DB.get('memberProfiles', id);
+	// }
 }
 
 let instance: MemberProfiles;

@@ -12,5 +12,9 @@
 	"parserOptions": {
 		"project": "./tsconfig.eslint.json"
 	},
-	"ignorePatterns": ["dist"]
+	"ignorePatterns": ["dist", "legacy"],
+	"rules": {
+		"no-restricted-syntax": "off",
+		"no-await-in-loop": "off"
+	}
 }

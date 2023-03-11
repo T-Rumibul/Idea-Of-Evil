@@ -1,15 +1,13 @@
 import { IOEClient } from '@bot/core/IOEClient';
-import { Message } from 'discord.js';
+import type { Message } from 'discord.js';
 
 export async function Emit(Message: Message, client: IOEClient) {
-    
-    if (Message.author.bot) return;
-    try {
-       
-        await client.modules.Player.play(Message)
-    } catch(e) {
-        console.log(e)
-    }
+	if (Message.author.bot) return;
+	try {
+		await client.modules.Music.play(Message);
+	} catch (e) {
+		client.log('', e);
+	}
 }
 
 export default Emit;
