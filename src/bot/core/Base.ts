@@ -14,7 +14,13 @@ export default class Base {
 		this.name = name;
 		this.disabled = false;
 		this.client = client;
+		this.client.on('ready', () => {
+			this.overrideInit();
+		});
 	}
+
+	// eslint-disable-next-line class-methods-use-this
+	protected overrideInit?(): void;
 
 	log(message: string, payload?: unknown): void {
 		this.client.log(`BOT:${this.name}`, message, payload);

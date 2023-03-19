@@ -14,10 +14,9 @@ export default class GuildController extends Base {
 		super('GuildController', client);
 		this.cache = new Map();
 		this.updated = [];
-		this.init();
 	}
 
-	private init() {
+	overrideInit() {
 		// Write all changes into db every 5 minutes
 		this.dbWriteIntervalID = setInterval(() => {
 			this.write();
@@ -70,7 +69,6 @@ export default class GuildController extends Base {
 
 	public async getMusicChannels(): Promise<Map<string, string>> {
 		const { guilds } = this.client;
-
 		// Map key: guildID, value: channelID
 		const musicChannels = new Map();
 

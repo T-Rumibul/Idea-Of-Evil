@@ -83,7 +83,7 @@ async function execute(interaction: ChatInputCommandInteraction, client: IOEClie
 					await client.IOE.externalDB.guild.getMusicChannels()
 				).get(guildId)}>`
 			);
-			await client.modules.music.sendControllMessage(channel, guildId);
+			await client.modules.music.display.sendDisplayMessage(channel, guildId);
 			await client.modules.music.updateMusicChannels();
 		}
 	} catch (e) {

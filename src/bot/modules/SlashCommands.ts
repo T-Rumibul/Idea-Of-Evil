@@ -13,15 +13,13 @@ const NAME = 'SlashCommands';
 export class SlashCommands extends Base {
 	constructor(client: IOEClient) {
 		super(NAME, client);
-
-		this.init();
 	}
 	/**  Registers commands for each
 	 * guild in the client's guilds cache,
 	 * then registers events for when an interaction
 	 * is created or when a new guild is created. */
 
-	async init() {
+	async overrideInit() {
 		this.log('Initialization');
 		this.client.guilds.cache.forEach(async (value, key) => {
 			await this.registerCommandsForGuild(value);

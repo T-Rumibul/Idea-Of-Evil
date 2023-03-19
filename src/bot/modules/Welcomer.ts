@@ -18,6 +18,10 @@ export class Welcomer extends Base {
 		super(NAME, client);
 	}
 
+	overrideInit() {
+		this.log('Initialization');
+	}
+
 	async sendWelcomeMesssageTrigger(member: GuildMember, client: IOEClient) {
 		if (this.disabled) return;
 		const channelId = await client.IOE.externalDB.guild.getWelcomeChannel(member.guild.id);

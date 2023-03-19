@@ -32,6 +32,10 @@ export class MemberProfiles extends Base {
 		this.activities = new Map();
 	}
 
+	overrideInit() {
+		this.log('Initialization!');
+	}
+
 	async addActivity(id: string, oldPresence: Presence | null, newPresence: Presence) {
 		const memberActivities = this.activities.get(id);
 		if (!memberActivities) return false;

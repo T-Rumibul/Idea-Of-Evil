@@ -21,10 +21,9 @@ export class ExternalDB extends Base {
 		super('ExternalDB', client);
 		this.guild = new GuildController(client);
 		this.profile = new ProfileController(client);
-		this.init();
 	}
 
-	private async init() {
+	async overrideInit() {
 		this.log('DB Initialization');
 		const DB_URL = (!process.env.dev ? process.env.DB : process.env.DEV_DB) || '';
 

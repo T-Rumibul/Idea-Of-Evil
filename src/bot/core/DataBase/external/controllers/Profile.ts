@@ -14,10 +14,9 @@ export default class ProfileController extends Base {
 		this.cache = new Map();
 
 		this.updated = [];
-		this.init();
 	}
 
-	private init() {
+	overrideInit() {
 		// Write all changes into db every 5 minutes
 		this.dbWriteIntervalID = setInterval(() => {
 			this.write();
