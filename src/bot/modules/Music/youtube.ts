@@ -1,9 +1,8 @@
 import IOEClient from '@bot/core/IOEClient';
-import { ChannelType, EmbedField, GuildMember, Message, TextChannel } from 'discord.js';
+import { EmbedField, GuildMember, Message, TextChannel } from 'discord.js';
 import yts from 'yt-search';
 import * as ytdl from 'play-dl';
 import type { Music } from '../Music';
-import { Song } from './queue';
 import { youtube } from './regEx';
 
 const chooseEmbedTemplate = {
@@ -80,7 +79,7 @@ export class MusicYouTube {
 		tracks: yts.VideoSearchResult[]
 	): Promise<number> {
 		try {
-			const embed = chooseEmbedTemplate;
+			const embed = JSON.parse(JSON.stringify(chooseEmbedTemplate));
 			let tracksCount = 0;
 			for (let i = 0; i < tracks.length; i += 1) {
 				if (i >= 5) break;
