@@ -38,13 +38,6 @@ export class ExternalDB extends Base {
 		this.profile.write();
 	}
 
-	public async setMusicChannel(guildId: string, channelId: string): Promise<void> {
-		const guildData = await this.guild.get(guildId);
-		guildData.musicChannel = channelId;
-		await this.guild.set(guildId, guildData);
-		this.guild.write();
-	}
-
 	public async blackListUser(id: string, reason: string): Promise<void> {
 		const profileData = await this.profile.get(id);
 		profileData.ban = true;
@@ -57,25 +50,6 @@ export class ExternalDB extends Base {
 		const profileData = await this.profile.get(id);
 		const result = profileData.banReason ? profileData.banReason : null;
 		return result;
-	}
-
-	public async getMusicChannels(): Promise<Map<string, string>> {
-		const { guilds } = this.client;
-
-		// Map key: guildID, value: channelID
-		const musicChannels = new Map();
-
-		for (const [key, value] of guilds.cache) {
-			const guildData = await this.guild.get(key);
-			const musicChannelId = guildData.musicChannel;
-			if (!musicChannelId) {
-				musicChannels.set(key, '');
-			} else {
-				musicChannels.set(key, musicChannelId);
-			}
-		}
-
-		return musicChannels;
 	}
 }
 

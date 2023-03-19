@@ -20,7 +20,7 @@ export class Welcomer extends Base {
 
 	async sendWelcomeMesssageTrigger(member: GuildMember, client: IOEClient) {
 		if (this.disabled) return;
-		const channelId = await client.getWelcomeChannel(member.guild.id);
+		const channelId = await client.IOE.externalDB.guild.getWelcomeChannel(member.guild.id);
 		const channel = member.guild.channels.cache.get(channelId);
 		this.log('', channel);
 		if (!channel || ChannelType.GuildText !== channel.type) return;

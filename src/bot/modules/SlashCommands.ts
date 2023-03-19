@@ -44,7 +44,7 @@ export class SlashCommands extends Base {
 	private registerEvents() {
 		this.client.on('interactionCreate', async (interaction: Interaction) => {
 			if (!interaction.isChatInputCommand()) return;
-			const musicChannels = await this.client.IOE.externalDB.getMusicChannels();
+			const musicChannels = await this.client.IOE.externalDB.guild.getMusicChannels();
 			if (interaction.channelId === musicChannels.get(interaction.guildId || '')) return;
 			this.executeInteraction(interaction);
 		});

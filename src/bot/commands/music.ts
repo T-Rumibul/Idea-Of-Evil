@@ -77,10 +77,10 @@ async function execute(interaction: ChatInputCommandInteraction, client: IOEClie
 			}
 			const { guildId } = interaction;
 			if (!guildId) return;
-			await client.IOE.externalDB.setMusicChannel(guildId, channel.id);
+			await client.IOE.externalDB.guild.setMusicChannel(guildId, channel.id);
 			const msg = await interaction.reply(
 				`Новый канал для плеера: <#${(
-					await client.IOE.externalDB.getMusicChannels()
+					await client.IOE.externalDB.guild.getMusicChannels()
 				).get(guildId)}>`
 			);
 			await client.modules.music.sendControllMessage(channel, guildId);

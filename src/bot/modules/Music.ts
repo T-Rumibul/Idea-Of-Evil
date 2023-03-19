@@ -87,7 +87,7 @@ export class Music extends Base {
 	async init() {
 		try {
 			this.log('Initialization.');
-			this.channels = await this.client.IOE.externalDB.getMusicChannels();
+			this.channels = await this.client.IOE.externalDB.guild.getMusicChannels();
 			this.log(`Music Channel:`, this.channels);
 			this.channels.forEach(async (channelId: string, guildId: string) => {
 				const guild = await this.client.guilds.fetch(guildId);
@@ -106,7 +106,7 @@ export class Music extends Base {
 
 	async updateMusicChannels() {
 		this.log(`Update music channels:`, this.channels);
-		this.channels = await this.client.IOE.externalDB.getMusicChannels();
+		this.channels = await this.client.IOE.externalDB.guild.getMusicChannels();
 	}
 
 	async searchTrack(track: string) {

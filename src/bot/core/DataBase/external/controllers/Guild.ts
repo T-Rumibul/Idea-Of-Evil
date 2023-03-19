@@ -60,4 +60,41 @@ export default class GuildController extends Base {
 		this.log('Write updated cache to db finished');
 		return true;
 	}
+
+	public async setMusicChannel(guildId: string, channelId: string): Promise<void> {
+		const guildData = await this.get(guildId);
+		guildData.musicChannel = channelId;
+		await this.set(guildId, guildData);
+		this.write();
+	}
+
+	public async getMusicChannels(): Promise<Map<string, string>> {
+		const { guilds } = this.client;
+
+		// Map key: guildID, value: channelID
+		const musicChannels = new Map();
+
+		for (const [key, value] of guilds.cache) {
+			const guildData = await this.get(key);
+			const musicChannelId = guildData.musicChannel;
+			if (!musicChannelId) {
+				musicChannels.set(key, '');
+			} else {
+				musicChannels.set(key, musicChannelId);
+			}
+		}
+
+		return musicChannels;
+	}
+
+	public async setWelcomeChannel(guildId: string, channelId: string) {
+		const guildData = await this.get(guildId);
+		guildData.welcomeChannel = channelId;
+		await this.set(guildId, guildData);
+	}
+
+	public async getWelcomeChannel(guildId: string): Promise<string> {
+		const guildData = await this.get(guildId);
+		return guildData.welcomeChannel || '';
+	}
 }
