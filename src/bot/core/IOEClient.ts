@@ -58,50 +58,6 @@ export class IOEClient extends Client {
 		this.logManager.getLogger(name).log(message, payload);
 	}
 
-	public async syncDB(): Promise<void> {
-		this.IOE.externalDB.guild.write();
-	}
-
-	public async setMusicChannel(guildId: string, channelId: string): Promise<void> {
-		const guildData = await this.IOE.externalDB.guild.get(guildId);
-		guildData.musicChannel = channelId;
-		await this.IOE.externalDB.guild.set(guildId, guildData);
-		this.IOE.externalDB.guild.write();
-	}
-
-	public async blackListUser(id: string, reason: string): Promise<void> {
-		const profileData = await this.IOE.externalDB.profile.get(id);
-		profileData.ban = true;
-		profileData.banReason = reason;
-		await this.IOE.externalDB.profile.set(id, profileData);
-		this.IOE.externalDB.profile.write();
-	}
-
-	public async checkBlackListUser(id: string): Promise<string | null> {
-		const profileData = await this.IOE.externalDB.profile.get(id);
-		const result = profileData.banReason ? profileData.banReason : null;
-		return result;
-	}
-
-	public async getMusicChannels(): Promise<Map<string, string>> {
-		const { guilds } = this;
-
-		// Map key: guildID, value: channelID
-		const musicChannels = new Map();
-
-		for (const [key, value] of guilds.cache) {
-			const guildData = await this.IOE.externalDB.guild.get(key);
-			const musicChannelId = guildData.musicChannel;
-			if (!musicChannelId) {
-				musicChannels.set(key, '');
-			} else {
-				musicChannels.set(key, musicChannelId);
-			}
-		}
-
-		return musicChannels;
-	}
-
 	// eslint-disable-next-line class-methods-use-this
 	public getAdminRoles() {}
 

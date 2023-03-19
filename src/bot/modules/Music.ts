@@ -87,7 +87,7 @@ export class Music extends Base {
 	async init() {
 		try {
 			this.log('Initialization.');
-			this.channels = await this.client.getMusicChannels();
+			this.channels = await this.client.IOE.externalDB.getMusicChannels();
 			this.log(`Music Channel:`, this.channels);
 			this.channels.forEach(async (channelId: string, guildId: string) => {
 				const guild = await this.client.guilds.fetch(guildId);
@@ -106,7 +106,7 @@ export class Music extends Base {
 
 	async updateMusicChannels() {
 		this.log(`Update music channels:`, this.channels);
-		this.channels = await this.client.getMusicChannels();
+		this.channels = await this.client.IOE.externalDB.getMusicChannels();
 	}
 
 	async searchTrack(track: string) {
@@ -540,11 +540,11 @@ export class Music extends Base {
 		if (message.channel.type !== ChannelType.GuildText) return;
 		try {
 			if (message.channelId !== this.channels.get(message.guildId || '')) return;
-			if ((await this.client.checkBlackListUser(message.author.id)) !== null) {
+			if ((await this.client.IOE.externalDB.checkBlackListUser(message.author.id)) !== null) {
 				const msg = await message.channel.send(
 					`<@${
 						message.author.id
-					}> Вы внесены в черный список и не можете использовать команды этого бота. \n Причина: ${await this.client.checkBlackListUser(
+					}> Вы внесены в черный список и не можете использовать команды этого бота. \n Причина: ${await this.client.IOE.externalDB.checkBlackListUser(
 						message.author.id
 					)}`
 				);
