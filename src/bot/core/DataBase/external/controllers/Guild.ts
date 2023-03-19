@@ -1,18 +1,18 @@
-import type { DataBase } from '..';
+import Base from '@bot/core/Base';
+import type { IOEClient } from '@bot/core/IOEClient';
+
 import { Guild, GuildModel } from '../models/Guild';
 
-export default class GuildController {
+export default class GuildController extends Base {
 	private cache: Map<string, Guild>;
 
 	private updated: string[];
 
 	private dbWriteIntervalID!: NodeJS.Timeout;
 
-	private log: (string: string, payload?: unknown) => void;
-
-	constructor(DB: DataBase) {
+	constructor(client: IOEClient) {
+		super('GuildController', client);
 		this.cache = new Map();
-		this.log = DB.log;
 		this.updated = [];
 		this.init();
 	}
@@ -28,10 +28,7 @@ export default class GuildController {
 		this.log(`Get value from db for guildID: ${id}`);
 		let document: Guild | null;
 		const tmp = this.cache.get(id);
-		document =
-			tmp !== undefined
-				? tmp
-				: await GuildModel.findOne({ guildID: id }).exec();
+		document = tmp !== undefined ? tmp : await GuildModel.findOne({ guildID: id }).exec();
 		if (document == null) {
 			document = await GuildModel.create({
 				guildID: id,

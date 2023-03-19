@@ -1,11 +1,4 @@
-// import { Timer } from '../utils/Timer';
-import {
-	ChannelType,
-	Guild,
-	GuildMember,
-	Message,
-	PermissionFlagsBits,
-} from 'discord.js';
+import { ChannelType, Guild, GuildMember, Message, PermissionFlagsBits } from 'discord.js';
 
 import type { IOEClient } from './IOEClient';
 

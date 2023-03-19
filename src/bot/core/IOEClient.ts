@@ -5,30 +5,31 @@ import MessageEvent from '@bot/events/Message';
 import GuildMemberAdd from '@bot/events/GuildMemberAdd';
 import ReactionAdd from '@bot/events/ReactionAdd';
 import PresenceUpdate from '@bot/events/PresenceUpdate';
-import { getLogger, Logger } from '@bot/utils/Logger';
+import type { LogManager } from 'src/utils/Logger';
 import { memberProfiles, MemberProfiles } from '@bot/modules/MemberProfiles';
 import { SlashCommands, slashCommands } from '@bot/modules/SlashCommands';
-import { db, DataBase } from './DataBase/external';
+import { db, ExternalDB } from './DataBase/external';
 import dbLocal, { LocalDB } from './DataBase/local';
 import { Utils } from './Utils';
 
 export interface IOEClient extends Client {
-	utils: Utils;
-	logger: Logger;
+	IOE: {
+		externalDB: ExternalDB;
+		localDB: LocalDB;
+		utils: Utils;
+	};
+	logManager: LogManager;
 	log(string: string, payload?: unknown): void;
 	modules: {
-		SlashCommands: SlashCommands;
-		Welcomer: Welcomer;
-		MemberProfiles: MemberProfiles;
-		Music: Music;
-		LocalDB: LocalDB;
+		slashCommands: SlashCommands;
+		welcomer: Welcomer;
+		memberProfiles: MemberProfiles;
+		music: Music;
 	};
 }
 
 export class IOEClient extends Client {
-	private DB!: DataBase;
-
-	constructor() {
+	constructor(logManager: LogManager) {
 		super({
 			intents: [
 				IntentsBitField.Flags.Guilds,
@@ -38,53 +39,46 @@ export class IOEClient extends Client {
 				IntentsBitField.Flags.MessageContent,
 			],
 		});
-		this.logger = getLogger('BOT:Client');
+		this.logManager = logManager;
+		this.IOE = {
+			localDB: dbLocal(),
+			externalDB: db(this),
+			utils: new Utils(this),
+		};
+
 		this.init();
 	}
 
 	private init() {
-		this.log('Initialization');
-		this.utils = new Utils(this);
-		this.DB = db(this);
+		this.log('BOT', 'Initialization');
 		this.registerEventListeners();
 	}
 
-	log(string: string, payload?: unknown): void {
-		this.logger.log(string, payload);
+	log(name: string, message: string, payload?: unknown): void {
+		this.logManager.getLogger(name).log(message, payload);
 	}
 
 	public async syncDB(): Promise<void> {
-		this.DB.guild.write();
-	}
-
-	public async setPrefix(id: string, value: string): Promise<void> {
-		const guildData = await this.DB.guild.get(id);
-		guildData.prefix = value;
-		await this.DB.guild.set(id, guildData);
-	}
-
-	public async getPrefix(id: string): Promise<string> {
-		const guildData = await this.DB.guild.get(id);
-		return guildData.prefix || '';
+		this.IOE.externalDB.guild.write();
 	}
 
 	public async setMusicChannel(guildId: string, channelId: string): Promise<void> {
-		const guildData = await this.DB.guild.get(guildId);
+		const guildData = await this.IOE.externalDB.guild.get(guildId);
 		guildData.musicChannel = channelId;
-		await this.DB.guild.set(guildId, guildData);
-		this.DB.guild.write();
+		await this.IOE.externalDB.guild.set(guildId, guildData);
+		this.IOE.externalDB.guild.write();
 	}
 
 	public async blackListUser(id: string, reason: string): Promise<void> {
-		const profileData = await this.DB.profile.get(id);
+		const profileData = await this.IOE.externalDB.profile.get(id);
 		profileData.ban = true;
 		profileData.banReason = reason;
-		await this.DB.profile.set(id, profileData);
-		this.DB.profile.write();
+		await this.IOE.externalDB.profile.set(id, profileData);
+		this.IOE.externalDB.profile.write();
 	}
 
 	public async checkBlackListUser(id: string): Promise<string | null> {
-		const profileData = await this.DB.profile.get(id);
+		const profileData = await this.IOE.externalDB.profile.get(id);
 		const result = profileData.banReason ? profileData.banReason : null;
 		return result;
 	}
@@ -96,7 +90,7 @@ export class IOEClient extends Client {
 		const musicChannels = new Map();
 
 		for (const [key, value] of guilds.cache) {
-			const guildData = await this.DB.guild.get(key);
+			const guildData = await this.IOE.externalDB.guild.get(key);
 			const musicChannelId = guildData.musicChannel;
 			if (!musicChannelId) {
 				musicChannels.set(key, '');
@@ -112,27 +106,26 @@ export class IOEClient extends Client {
 	public getAdminRoles() {}
 
 	public async setWelcomeChannel(guildId: string, channelId: string) {
-		const guildData = await this.DB.guild.get(guildId);
+		const guildData = await this.IOE.externalDB.guild.get(guildId);
 		guildData.welcomeChannel = channelId;
-		await this.DB.guild.set(guildId, guildData);
+		await this.IOE.externalDB.guild.set(guildId, guildData);
 	}
 
 	public async getWelcomeChannel(guildId: string): Promise<string> {
-		const guildData = await this.DB.guild.get(guildId);
+		const guildData = await this.IOE.externalDB.guild.get(guildId);
 		return guildData.welcomeChannel || '';
 	}
 
 	public registerModules(): void {
 		this.modules = {
-			SlashCommands: slashCommands(this),
-			Welcomer: welcomer(),
-			MemberProfiles: memberProfiles(this),
-			Music: music(this),
-			LocalDB: dbLocal(),
+			slashCommands: slashCommands(this),
+			welcomer: welcomer(this),
+			memberProfiles: memberProfiles(this),
+			music: music(this),
 		};
-		this.log('Modules registered');
-		this.log('Initialization Completed');
-		this.log('Bot is Ready!');
+		this.log('BOT', 'Modules registered');
+		this.log('BOT', 'Initialization Completed');
+		this.log('BOT', 'Bot is Ready!');
 	}
 
 	private registerEventListeners() {
@@ -154,7 +147,7 @@ export class IOEClient extends Client {
 			this.registerModules();
 			if (this.user) {
 				this.user.setActivity(`серверов: ${this.guilds.cache.size}`, {
-					type: ActivityType.Watching,
+					type: ActivityType.Listening,
 				});
 			}
 		});

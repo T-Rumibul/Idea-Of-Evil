@@ -1,12 +1,5 @@
 import { IOEClient } from '@bot/core/IOEClient';
-import {
-	ChannelType,
-	ChatInputCommandInteraction,
-	SlashCommandBuilder,
-} from 'discord.js';
-import { getLogger } from '@bot/utils/Logger';
-
-const { log } = getLogger('BOT:SlashCommands');
+import { ChannelType, ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 
 const command = new SlashCommandBuilder();
 command.setName('invite');
@@ -22,7 +15,7 @@ async function execute(interaction: ChatInputCommandInteraction, client: IOEClie
 		);
 		// client.utils.deleteMessageTimeout(resp, 5000)
 	} catch (e) {
-		log('', e);
+		client.log('COMMAND', e);
 	}
 }
 

@@ -1,13 +1,7 @@
-import { BaseModule } from '@bot/core/BaseModule';
+import Base from '@bot/core/Base';
 import { IOEClient } from '@bot/core/IOEClient';
 import Commands from '@bot/commands';
-import {
-	ChatInputCommandInteraction,
-	Guild,
-	Interaction,
-	REST,
-	Routes,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Guild, Interaction, REST, Routes } from 'discord.js';
 
 const NAME = 'SlashCommands';
 
@@ -16,12 +10,10 @@ const NAME = 'SlashCommands';
     parameter and calls the init() 
     method to initialize the module.
     */
-export class SlashCommands extends BaseModule {
-	private client: IOEClient;
-
+export class SlashCommands extends Base {
 	constructor(client: IOEClient) {
-		super(NAME);
-		this.client = client;
+		super(NAME, client);
+
 		this.init();
 	}
 	/**  Registers commands for each
@@ -53,8 +45,7 @@ export class SlashCommands extends BaseModule {
 		this.client.on('interactionCreate', async (interaction: Interaction) => {
 			if (!interaction.isChatInputCommand()) return;
 			const musicChannels = await this.client.getMusicChannels();
-			if (interaction.channelId === musicChannels.get(interaction.guildId || ''))
-				return;
+			if (interaction.channelId === musicChannels.get(interaction.guildId || '')) return;
 			this.executeInteraction(interaction);
 		});
 
@@ -68,9 +59,7 @@ export class SlashCommands extends BaseModule {
 	 * then executes it with the client
 	 * as a parameter. */
 	async executeInteraction(interaction: ChatInputCommandInteraction) {
-		const command = Commands.find(
-			(cmd) => cmd.command.name === interaction.commandName
-		);
+		const command = Commands.find((cmd) => cmd.command.name === interaction.commandName);
 		if (!command) return;
 		command.execute(interaction, this.client);
 	}

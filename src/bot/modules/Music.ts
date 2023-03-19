@@ -1,5 +1,5 @@
-import { BaseModule } from '@bot/core/BaseModule';
-import { IOEClient } from '@bot/core/IOEClient';
+import Base from '@bot/core/Base';
+import type { IOEClient } from '@bot/core/IOEClient';
 import {
 	GuildMember,
 	Message,
@@ -24,7 +24,6 @@ import {
 	getVoiceConnection,
 	joinVoiceChannel,
 	NoSubscriberBehavior,
-	VoiceConnectionStatus,
 } from '@discordjs/voice';
 import * as ytdl from 'play-dl';
 import { addToQueue, clearQueue, getQueue, setQueue, Song } from './Music/queue';
@@ -69,9 +68,7 @@ const embedTemplate = {
 	fields: <EmbedField[]>[],
 };
 
-export class Music extends BaseModule {
-	private client: IOEClient;
-
+export class Music extends Base {
 	private reactions: string[] = ['▶', '⏸', '⏹', '⏭', '🔁', '🔀', '🇯']; // '🔇', '🔉', '🔊'
 
 	private channels!: Map<string, string>;
@@ -83,9 +80,7 @@ export class Music extends BaseModule {
 	private blockedUsers: Map<string, boolean> = new Map();
 
 	constructor(client: IOEClient) {
-		super(NAME);
-		this.client = client;
-
+		super(NAME, client);
 		this.init();
 	}
 
@@ -93,7 +88,7 @@ export class Music extends BaseModule {
 		try {
 			this.log('Initialization.');
 			this.channels = await this.client.getMusicChannels();
-			this.log('Music Channel: ', this.channels);
+			this.log(`Music Channel:`, this.channels);
 			this.channels.forEach(async (channelId: string, guildId: string) => {
 				const guild = await this.client.guilds.fetch(guildId);
 				if (!guild) return;
@@ -104,13 +99,13 @@ export class Music extends BaseModule {
 				}
 			});
 			this.log('Initialization completed.');
-		} catch (e) {
-			this.log('Init Error: ', e);
+		} catch (error) {
+			this.log(`Init Error:`, error);
 		}
 	}
 
 	async updateMusicChannels() {
-		this.log('Update music channels: ', this.channels);
+		this.log(`Update music channels:`, this.channels);
 		this.channels = await this.client.getMusicChannels();
 	}
 
@@ -126,7 +121,7 @@ export class Music extends BaseModule {
 			}
 			return [];
 		} catch (err) {
-			this.log('Search error: ', err);
+			this.log(`Search error:`, err);
 			return [];
 		}
 	}
@@ -157,7 +152,7 @@ export class Music extends BaseModule {
 
 			await this.connect(guildId);
 		} catch (e) {
-			this.log('Skip error:', e);
+			this.log(`Skip error:`, e);
 		}
 	}
 
@@ -169,8 +164,7 @@ export class Music extends BaseModule {
 			const msg = this.playerControllMessages.get(reaction.message.guildId || '');
 			if (!msg) return;
 
-			if (user.bot) return;
-			if (reaction.message.id !== msg.id) return;
+			if (user.bot || reaction.message.id !== msg.id) return;
 			reaction.users.remove(user.id);
 			const { guildId } = reaction.message;
 			if (!guildId) return;
@@ -251,7 +245,7 @@ export class Music extends BaseModule {
 					break;
 			}
 		} catch (e) {
-			this.log('Reaction handler error:', e);
+			this.log(`Reaction handler error:`, e);
 		}
 	}
 
@@ -286,9 +280,9 @@ export class Music extends BaseModule {
 					this.blockedUsers.set(member.id, false);
 					clearTimeout(id);
 					messageCollector.stop();
-					this.client.utils.deleteMessageTimeout(chooseMsg, 10);
+					this.client.IOE.utils.deleteMessageTimeout(chooseMsg, 10);
 				} catch (e) {
-					this.log('Remove choose msg error', e);
+					this.log(`Remove choose msg error:`, e);
 				}
 			};
 			return await new Promise((resolve, reject) => {
@@ -300,7 +294,7 @@ export class Music extends BaseModule {
 				messageCollector.on('collect', (m) => {
 					if (m.member?.user.id !== member.user.id) return;
 					if (m.author.bot) return;
-					this.client.utils.deleteMessageTimeout(m, 10);
+					this.client.IOE.utils.deleteMessageTimeout(m, 10);
 
 					switch (m.content.toLocaleLowerCase()) {
 						case '1':
@@ -340,7 +334,7 @@ export class Music extends BaseModule {
 				});
 			});
 		} catch (e) {
-			this.log('Choose track error:', e);
+			this.log(`Choose track error:`, e);
 			return -1;
 		}
 	}
@@ -386,7 +380,7 @@ export class Music extends BaseModule {
 						},
 					],
 				});
-				this.client.utils.deleteMessageTimeout(msg, 5000);
+				this.client.IOE.utils.deleteMessageTimeout(msg, 5000);
 				return false;
 			}
 			const { guildId } = message;
@@ -406,10 +400,10 @@ export class Music extends BaseModule {
 					: url;
 				// https://open.spotify.com/track/7IhKkWrdn7WEfWj0gQ3ihM?si=9f7b55e33f8d4f65
 				const validateUrl = await ytdl.validate(url);
-				this.log('URL Type:', validateUrl);
+				this.log(`URL Type:`, validateUrl);
 				if (validateUrl !== 'yt_video' && validateUrl !== 'sp_track') {
 					const msg = await message.channel.send('Неправильная ссылка.');
-					this.client.utils.deleteMessageTimeout(msg, 5000);
+					this.client.IOE.utils.deleteMessageTimeout(msg, 5000);
 					return false;
 				}
 				let videoDetails: ytdl.YouTubeVideo;
@@ -432,7 +426,7 @@ export class Music extends BaseModule {
 				const search = await this.searchTrack(message.content);
 				if (!search || search.length === 0) {
 					const msg = await message.channel.send('Трек не найден.');
-					this.client.utils.deleteMessageTimeout(msg, 5000);
+					this.client.IOE.utils.deleteMessageTimeout(msg, 5000);
 					return false;
 				}
 				this.blockedUsers.set(message.member.id, true);
@@ -454,7 +448,7 @@ export class Music extends BaseModule {
 			await this.updateControllMessage(guildId);
 			return song;
 		} catch (e) {
-			this.log('Search error:', e);
+			this.log(`Search error:`, e);
 			return false;
 		}
 	}
@@ -536,7 +530,7 @@ export class Music extends BaseModule {
 			}
 			return a;
 		} catch (e) {
-			this.log('Shuffle Error:', e);
+			this.log(`Shuffle Error:`, e);
 			return inputArray;
 		}
 	}
@@ -554,12 +548,12 @@ export class Music extends BaseModule {
 						message.author.id
 					)}`
 				);
-				this.client.utils.deleteMessageTimeout(msg, 10000);
+				this.client.IOE.utils.deleteMessageTimeout(msg, 10000);
 				message.delete();
 				return;
 			}
 			if (this.blockedUsers.get(message.member?.id || '') === true) return;
-			this.client.utils.deleteMessageTimeout(message, 1000);
+			this.client.IOE.utils.deleteMessageTimeout(message, 1000);
 			const search = await this.search(message);
 			const { guildId } = message;
 
@@ -585,7 +579,7 @@ export class Music extends BaseModule {
 							},
 						],
 					});
-					this.client.utils.deleteMessageTimeout(msg, 5000);
+					this.client.IOE.utils.deleteMessageTimeout(msg, 5000);
 					return;
 				}
 				connection = joinVoiceChannel({
@@ -597,7 +591,7 @@ export class Music extends BaseModule {
 			}
 			await this.connect(guildId, connection);
 		} catch (e) {
-			this.log('Play error:', e);
+			this.log(`Play error:`, e);
 		}
 	}
 
@@ -637,11 +631,12 @@ export class Music extends BaseModule {
 			Reflect.get(oldState, 'networking')?.off('stateChange', networkStateChangeHandler);
 			Reflect.get(newState, 'networking')?.on('stateChange', networkStateChangeHandler);
 		});
+
 		player.on('error', (e) => {
-			this.log('Error:', e);
+			this.log(`Error:`, e);
 		});
 		player.on('debug', (e) => {
-			this.log('Debug:', e);
+			this.log(`Debug:`, e);
 		});
 
 		connection.subscribe(player);
@@ -674,7 +669,7 @@ export class Music extends BaseModule {
 				await this.nextSong(guildId);
 			});
 			player.on('error', (e) => {
-				this.log('Player error: ', e);
+				this.log(`Player error:`, e);
 			});
 			return player;
 		}

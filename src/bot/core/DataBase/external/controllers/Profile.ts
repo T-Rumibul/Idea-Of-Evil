@@ -1,18 +1,18 @@
+import Base from '@bot/core/Base';
+import type { IOEClient } from '@bot/core/IOEClient';
 import { Profile, ProfileModel } from '../models/Profile';
-import type { DataBase } from '..';
 
-export default class ProfileController {
+export default class ProfileController extends Base {
 	private cache: Map<string, Profile>;
 
 	private updated: string[];
 
 	private dbWriteIntervalID!: NodeJS.Timeout;
 
-	private log: (string: string, payload?: unknown) => void;
-
-	constructor(DB: DataBase) {
+	constructor(client: IOEClient) {
+		super('GuildController', client);
 		this.cache = new Map();
-		this.log = DB.log;
+
 		this.updated = [];
 		this.init();
 	}
@@ -28,10 +28,7 @@ export default class ProfileController {
 		this.log(`Get value from db for ProfileID: ${id}`);
 		let document: Profile | null;
 		const tmp = this.cache.get(id);
-		document =
-			tmp !== undefined
-				? tmp
-				: await ProfileModel.findOne({ userID: id }).exec();
+		document = tmp !== undefined ? tmp : await ProfileModel.findOne({ userID: id }).exec();
 
 		if (document == null) {
 			document = await ProfileModel.create({

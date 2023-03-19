@@ -9,9 +9,6 @@ import {
 	SlashCommandSubcommandBuilder,
 	SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
-import { getLogger } from '@bot/utils/Logger';
-
-const { log } = getLogger('BOT:SlashCommands');
 
 const command = new SlashCommandBuilder();
 command.setName('music');
@@ -63,9 +60,7 @@ async function execute(interaction: ChatInputCommandInteraction, client: IOEClie
 			interaction.options.getSubcommandGroup() === 'channel' &&
 			interaction.options.getSubcommand() === 'set'
 		) {
-			const channel = <GuildTextBasedChannel>(
-				interaction.options.getChannel('channel', true)
-			);
+			const channel = <GuildTextBasedChannel>interaction.options.getChannel('channel', true);
 			if (channel.type !== ChannelType.GuildText) return;
 			if (
 				(
@@ -84,15 +79,13 @@ async function execute(interaction: ChatInputCommandInteraction, client: IOEClie
 			if (!guildId) return;
 			await client.setMusicChannel(guildId, channel.id);
 			const msg = await interaction.reply(
-				`Новый канал для плеера: <#${(
-					await client.getMusicChannels()
-				).get(guildId)}>`
+				`Новый канал для плеера: <#${(await client.getMusicChannels()).get(guildId)}>`
 			);
-			await client.modules.Music.sendControllMessage(channel, guildId);
-			await client.modules.Music.updateMusicChannels();
+			await client.modules.music.sendControllMessage(channel, guildId);
+			await client.modules.music.updateMusicChannels();
 		}
 	} catch (e) {
-		log('', e);
+		client.log('COMMAND', e);
 	}
 }
 

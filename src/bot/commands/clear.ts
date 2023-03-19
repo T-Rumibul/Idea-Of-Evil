@@ -6,9 +6,6 @@ import {
 	SlashCommandBuilder,
 	SlashCommandNumberOption,
 } from 'discord.js';
-import { getLogger } from '@bot/utils/Logger';
-
-const { log } = getLogger('BOT:SlashCommands');
 
 const command = new SlashCommandBuilder();
 command.setName('clear');
@@ -40,7 +37,7 @@ async function execute(interaction: ChatInputCommandInteraction, client: IOEClie
 		await interaction.reply(`Удалено **${deleted.size}** сообщений.`);
 		// client.utils.deleteMessageTimeout(resp, 5000)
 	} catch (e) {
-		log('', e);
+		client.log('COMMAND', e);
 	}
 }
 

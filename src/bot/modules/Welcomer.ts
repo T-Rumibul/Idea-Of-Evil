@@ -1,4 +1,4 @@
-import { BaseModule } from '@bot/core/BaseModule';
+import Base from '@bot/core/Base';
 import { IOEClient } from '@bot/core/IOEClient';
 import {
 	GuildMember,
@@ -13,10 +13,9 @@ import path from 'path';
 
 const ASSETS_PATH = path.join(__dirname, '../assets');
 const NAME = 'Welcomer';
-export class Welcomer extends BaseModule {
-	constructor() {
-		super(NAME);
-		this.disabled = false;
+export class Welcomer extends Base {
+	constructor(client: IOEClient) {
+		super(NAME, client);
 	}
 
 	async sendWelcomeMesssageTrigger(member: GuildMember, client: IOEClient) {
@@ -52,13 +51,10 @@ export class Welcomer extends BaseModule {
 		avatar.resize(137, 137);
 		avatar.mask(AVATAR_MASK, 0, 0);
 		BACKGROUND.composite(avatar, 30, 60);
-		const image = new AttachmentBuilder(
-			await BACKGROUND.getBufferAsync(jimp.MIME_PNG),
-			{ name: 'final.png' }
-		);
-		const embed = new EmbedBuilder()
-			.setColor(12387078)
-			.setImage('attachment://final.png');
+		const image = new AttachmentBuilder(await BACKGROUND.getBufferAsync(jimp.MIME_PNG), {
+			name: 'final.png',
+		});
+		const embed = new EmbedBuilder().setColor(12387078).setImage('attachment://final.png');
 
 		await channel
 			.send({
@@ -72,8 +68,8 @@ export class Welcomer extends BaseModule {
 }
 
 let instance: Welcomer;
-export function welcomer() {
-	if (!instance) instance = new Welcomer();
+export function welcomer(client: IOEClient) {
+	if (!instance) instance = new Welcomer(client);
 
 	return instance;
 }

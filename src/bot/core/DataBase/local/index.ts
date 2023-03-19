@@ -1,12 +1,10 @@
 import { JsonDB } from 'node-json-db';
 import { Config } from 'node-json-db/dist/lib/JsonDBConfig';
-import { BaseModule } from '@bot/core/BaseModule';
 
-export class LocalDB extends BaseModule {
+export class LocalDB {
 	private db;
 
 	constructor() {
-		super('Local DB');
 		this.db = new JsonDB(new Config('db', true, false, '/'));
 	}
 

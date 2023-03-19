@@ -6,7 +6,7 @@ export async function Emit(
 	user: User | PartialUser,
 	client: IOEClient
 ) {
-	await client.modules.Music.reactionHandler(reaction, user);
+	await client.modules.music.reactionHandler(reaction, user);
 }
 
 export default Emit;

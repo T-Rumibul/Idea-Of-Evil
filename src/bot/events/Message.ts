@@ -4,7 +4,7 @@ import type { Message } from 'discord.js';
 export async function Emit(Message: Message, client: IOEClient) {
 	if (Message.author.bot) return;
 	try {
-		await client.modules.Music.play(Message);
+		await client.modules.music.play(Message);
 	} catch (e) {
 		client.log('', e);
 	}

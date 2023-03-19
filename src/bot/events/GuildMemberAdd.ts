@@ -3,7 +3,7 @@ import { GuildMember } from 'discord.js';
 
 export function Emit(member: GuildMember, client: IOEClient) {
 	if (member.user.bot) return;
-	client.modules.Welcomer.sendWelcomeMesssageTrigger(member, client);
+	client.modules.welcomer.sendWelcomeMesssageTrigger(member, client);
 }
 
 export default Emit;

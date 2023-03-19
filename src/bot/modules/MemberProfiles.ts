@@ -1,11 +1,10 @@
-import { BaseModule } from '@bot/core/BaseModule';
+import Base from '@bot/core/Base';
 import { IOEClient } from '@bot/core/IOEClient';
 import type { Presence } from 'discord.js';
 
 const NAME = 'MemberProfiles';
 
 export interface MemberProfiles {
-	client: IOEClient;
 	activities: Map<string, unknown[]>;
 }
 
@@ -27,10 +26,9 @@ export interface MemberProfiles {
 // 	sessions: Sessions[];
 // }
 
-export class MemberProfiles extends BaseModule {
+export class MemberProfiles extends Base {
 	constructor(client: IOEClient) {
-		super(NAME);
-		this.client = client;
+		super(NAME, client);
 		this.activities = new Map();
 	}
 
