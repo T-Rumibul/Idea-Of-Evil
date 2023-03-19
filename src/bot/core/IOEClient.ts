@@ -1,7 +1,7 @@
 import { Client, IntentsBitField } from 'discord.js';
 import { Welcomer } from '@bot/modules/Welcomer';
 import { Music } from '@bot/modules/Music';
-import { LogManager } from 'src/utils/Logger';
+import { LogManager } from '@src/utils/Logger';
 import { MemberProfiles } from '@bot/modules/MemberProfiles';
 import { SlashCommands } from '@bot/modules/SlashCommands';
 import { db } from './DataBase/external';

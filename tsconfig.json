@@ -18,7 +18,7 @@
 		"paths": {
 			"@bot/*": ["src/bot/*"],
 			"@api/*": ["src/api/*"],
-			"@src/*": ["src/minecraftApi/*"]
+			"@src/*": ["src/*"]
 		}
 	},
 	"include": ["src/**/*"],
