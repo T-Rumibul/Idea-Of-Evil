@@ -1,10 +1,23 @@
 import { IOEClient } from '@bot/core/IOEClient';
-import type { Message } from 'discord.js';
+import { ChannelType, Message } from 'discord.js';
 
-export async function Emit(Message: Message, client: IOEClient) {
-	if (Message.author.bot) return;
+export async function Emit(message: Message, client: IOEClient) {
 	try {
-		await client.modules.music.play(Message);
+		if (message.author.bot) return;
+		if ((await client.IOE.externalDB.checkBlackListUser(message.author.id)) !== null) {
+			if (message.channel.type !== ChannelType.GuildText) return;
+			const msg = await message.channel.send(
+				`<@${
+					message.author.id
+				}> Вы внесены в черный список и не можете использовать команды этого бота. \n Причина: ${await this.client.IOE.externalDB.checkBlackListUser(
+					message.author.id
+				)}`
+			);
+			this.client.IOE.utils.deleteMessageTimeout(msg, 10000);
+			message.delete();
+			return;
+		}
+		await client.modules.music.play(message);
 	} catch (e) {
 		client.log('', e);
 	}

@@ -117,6 +117,10 @@ export class MusicQueue extends EventEmitter {
 			queue.shift();
 			await this.setQueue(guildId, queue);
 		}
+		if (queue.length === 0) {
+			this.emit('empty', guildId);
+			return;
+		}
 		this.emit('nextSong', [queue, guildId]);
 	}
 }

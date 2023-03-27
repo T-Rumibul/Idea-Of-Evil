@@ -33,8 +33,7 @@ export class MusicControls {
 			reaction.users.remove(user.id);
 			const { guildId } = reaction.message;
 			if (!guildId) return;
-			const player = this.music.players.get(guildId);
-			if (!player) return;
+			const player = await this.music.player.get(guildId);
 			switch (reaction.emoji.name) {
 				// Play
 				case this.reactions[0]:
@@ -97,13 +96,7 @@ export class MusicControls {
 						player.pause(true);
 					}
 
-					const newConnection = joinVoiceChannel({
-						channelId: newChannel.id,
-						guildId,
-						adapterCreator:
-							guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
-					});
-					this.music.connect(guildId, newConnection);
+					this.music.player.connect(guildId, newChannel.id, guild.voiceAdapterCreator);
 					break;
 				}
 				default:
