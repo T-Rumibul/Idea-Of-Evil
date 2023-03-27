@@ -1,6 +1,5 @@
 import IOEClient from '@bot/core/IOEClient';
 import { EmbedField, GuildMember, Message, TextChannel } from 'discord.js';
-import yts from 'yt-search';
 import ytsr from '@distube/ytsr';
 import * as ytdl from 'play-dl';
 import type { Music } from '../Music';

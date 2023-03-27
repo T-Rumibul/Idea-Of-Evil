@@ -119,15 +119,9 @@ export class MusicPlayer extends EventEmitter {
 	private async addEventListeners(player: AudioPlayer, guildId: string) {
 		player.on(AudioPlayerStatus.Idle, async () => {
 			this.emit('idle', [player, guildId]);
-			// if (queue.length === 0) {
-			//     connection.destroy();
-			//     return;
-			// }
-
-			await this.music.queue.nextSong(guildId);
 		});
 		player.on('error', (e) => {
-			this.music.log(`Player error:`, e);
+			this.emit('error', [player, guildId, e]);
 		});
 	}
 }

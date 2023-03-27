@@ -78,6 +78,24 @@ export class Music extends Base {
 				const connection = getVoiceConnection(guildId);
 				if (connection) connection.destroy();
 			});
+			this.player.on('idle', async ([player, guildId]) => {
+				const queue = await this.queue.getQueue(guildId);
+				if (queue.length === 0) {
+					const connection = getVoiceConnection(guildId);
+					player.stop(true);
+					await this.queue.clearQueue(guildId || '');
+
+					await this.display.updateDisplayMessage(guildId);
+					if (!connection) return;
+					connection.destroy();
+					return;
+				}
+
+				await this.queue.nextSong(guildId);
+			});
+			this.player.on('error', ([player, guildId, e]) => {
+				this.log(`Player error GUILD: ${guildId}:`, e);
+			});
 			this.log('Initialization completed.');
 		} catch (error) {
 			this.log(`Init Error:`, error);
