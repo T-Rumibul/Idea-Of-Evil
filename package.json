@@ -55,6 +55,7 @@
 		"nodemon": "^2.0.20",
 		"openai": "^3.2.1",
 		"prettier": "^2.8.4",
+		"prettier-plugin-jsdoc": "^0.4.2",
 		"sodium-native": "^4.0.1",
 		"ts-node": "^10.9.1",
 		"tsconfig-paths": "^3.14.2",

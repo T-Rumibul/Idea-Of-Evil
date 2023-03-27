@@ -1,10 +1,5 @@
 import type IOEClient from '@bot/core/IOEClient';
-import {
-	getVoiceConnection,
-	AudioPlayerStatus,
-	joinVoiceChannel,
-	DiscordGatewayAdapterCreator,
-} from '@discordjs/voice';
+import { getVoiceConnection, AudioPlayerStatus } from '@discordjs/voice';
 import type { MessageReaction, PartialMessageReaction, User, PartialUser } from 'discord.js';
 import type { Music } from '../Music';
 
@@ -36,9 +31,12 @@ export class MusicControls {
 			const player = await this.music.player.get(guildId);
 			switch (reaction.emoji.name) {
 				// Play
-				case this.reactions[0]:
+				case this.reactions[0]: {
 					player.unpause();
+					const connection = getVoiceConnection(guildId);
+					console.log(connection);
 					break;
+				}
 				// Pause
 				case this.reactions[1]:
 					player.pause(true);

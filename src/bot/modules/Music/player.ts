@@ -56,6 +56,13 @@ export class MusicPlayer extends EventEmitter {
 		connection.subscribe(player);
 	}
 
+	async stop(guildId: string) {
+		const player = await this.get(guildId);
+		player.stop(true);
+		const connection = getVoiceConnection(guildId);
+		if (connection) connection.destroy();
+	}
+
 	private async play(player: AudioPlayer, guildId: string) {
 		const queue = await this.music.queue.getQueue(guildId);
 
