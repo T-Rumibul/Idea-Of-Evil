@@ -1,6 +1,7 @@
 import IOEClient from '@bot/core/IOEClient';
 import { EmbedField, GuildMember, Message, TextChannel } from 'discord.js';
 import yts from 'yt-search';
+import ytsr from '@distube/ytsr';
 import * as ytdl from 'play-dl';
 import type { Music } from '../Music';
 import { youtube } from './regEx';
@@ -29,9 +30,9 @@ export class MusicYouTube {
 			// if (song.results.length > 0) {
 			// 	return song.results;
 			// }
-			const search = await yts(message.content);
-
-			if (!search || !search.videos || search.videos.length === 0) {
+			const search = await ytsr(message.content, { limit: 5 });
+			const items = <ytsr.Video[]>search.items.filter((item) => item.type === 'video');
+			if (!items || items.length === 0) {
 				const msg = await message.reply('Трек не найден.');
 				this.client.IOE.utils.deleteMessageTimeout(msg, 5000);
 				return false;
@@ -40,10 +41,10 @@ export class MusicYouTube {
 			const selectedTrack = await this.sendChooseMessage(
 				message.member,
 				<TextChannel>message.channel,
-				search.videos
+				items
 			);
 			if (selectedTrack === -1) return false;
-			return search.videos[selectedTrack]?.url;
+			return items[selectedTrack]?.url;
 		} catch (err) {
 			this.music.log(`Youtube search error:`, err);
 			return false;
@@ -76,7 +77,7 @@ export class MusicYouTube {
 	async sendChooseMessage(
 		member: GuildMember,
 		channel: TextChannel,
-		tracks: yts.VideoSearchResult[]
+		tracks: ytsr.Video[]
 	): Promise<number> {
 		try {
 			const embed = JSON.parse(JSON.stringify(chooseEmbedTemplate));
@@ -85,7 +86,7 @@ export class MusicYouTube {
 				if (i >= 5) break;
 				tracksCount += 1;
 
-				embed.description += `${i + 1}. **[${tracks[i]?.title}](${tracks[i]?.url})** \n`;
+				embed.description += `${i + 1}. **[${tracks[i]?.name}](${tracks[i]?.url})** \n`;
 			}
 
 			embed.fields[0] = {
