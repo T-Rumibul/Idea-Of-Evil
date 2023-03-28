@@ -8,7 +8,6 @@ import {
 	getVoiceConnection,
 	joinVoiceChannel,
 	NoSubscriberBehavior,
-	VoiceConnection,
 } from '@discordjs/voice';
 import EventEmitter from 'events';
 import type { Music } from '../Music';
@@ -75,7 +74,6 @@ export class MusicPlayer extends EventEmitter {
 		const resource = createAudioResource(stream.stream, {
 			inputType: stream.type,
 		});
-
 		player.play(resource);
 
 		player.unpause();

@@ -33,8 +33,6 @@ export class MusicControls {
 				// Play
 				case this.reactions[0]: {
 					player.unpause();
-					const connection = getVoiceConnection(guildId);
-					console.log(connection);
 					break;
 				}
 				// Pause

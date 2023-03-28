@@ -1,6 +1,5 @@
 import dbLocal from '@bot/core/DataBase/local';
 import IOEClient from '@bot/core/IOEClient';
-import { getVoiceConnection } from '@discordjs/voice';
 import EventEmitter from 'events';
 import type { Music } from '../Music';
 
