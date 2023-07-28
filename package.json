@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "set dev=dev && nodemon --ignore db.json --exec npx ts-node -r tsconfig-paths/register  src/index.ts",
     "start": "node dist/index.js",
-    "build": "tsc"
+    "build": "tsc && copyfiles -f src/bot/assets/* dist/bot/assets"
   },
   "dependencies": {
     "@discordjs/voice": "^0.16.0",
@@ -42,6 +42,7 @@
     "@types/uniqid": "^5.3.2",
     "@types/ws": "^8.5.5",
     "axios": "^1.4.0",
+    "copyfiles": "^2.4.1",
     "discord-api-types": "^0.37.50",
     "ffmpeg-static": "^5.1.0",
     "gts": "^5.0.0",
