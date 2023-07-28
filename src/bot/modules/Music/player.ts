@@ -10,6 +10,7 @@ import {
 	NoSubscriberBehavior,
 } from '@discordjs/voice';
 import EventEmitter from 'events';
+
 import type { Music } from '../Music';
 import ytdl from './ytdl';
 
@@ -63,21 +64,28 @@ export class MusicPlayer extends EventEmitter {
 	}
 
 	private async play(player: AudioPlayer, guildId: string) {
-		const queue = await this.music.queue.getQueue(guildId);
+		try {
+			const queue = await this.music.queue.getQueue(guildId);
 
-		if (queue.length === 0) return false;
+			if (queue.length === 0) return false;
 
-		const url = queue[0]?.link;
-		if (!url) return false;
-		const stream = await ytdl.stream(url);
+			const url = queue[0]?.link;
+			if (!url) return false;
+			const stream = await ytdl.stream(url);
 
-		const resource = createAudioResource(stream.stream, {
-			inputType: stream.type,
-		});
-		player.play(resource);
-
-		player.unpause();
-		return true;
+	
+			const resource = createAudioResource(stream.stream, {
+				inputType: stream.type
+			});
+			
+			player.play(resource);
+			
+			player.unpause();
+			return true;
+		} catch (e) {
+			this.music.log(`Play error GUILD: ${guildId}`, e);
+			return false
+		}
 	}
 
 	async next(guildId: string) {
