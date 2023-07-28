@@ -102,6 +102,7 @@ export default class GuildController extends Base {
     const guildData = await this.get(guildId);
     guildData.welcomeChannel = channelId;
     await this.set(guildId, guildData);
+    this.write();
   }
 
   public async getWelcomeChannel(guildId: string): Promise<string> {

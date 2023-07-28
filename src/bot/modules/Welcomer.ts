@@ -49,7 +49,8 @@ export class Welcomer extends Base {
     );
     const COUNT_FONT = await jimp.loadFont(path.join(ASSETS_PATH, 'font.fnt'));
     const avatar = await jimp.read(
-      member.user.avatarURL({forceStatic: true}) || member.user.defaultAvatarURL
+      member.user.avatarURL({forceStatic: true, extension: 'png'}) ||
+        member.user.defaultAvatarURL
     );
 
     let {username} = member.user;
