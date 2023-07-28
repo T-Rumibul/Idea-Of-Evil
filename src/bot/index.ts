@@ -1,4 +1,4 @@
-import { IOEClient } from '@bot/core/IOEClient';
+import {IOEClient} from '@bot/core/IOEClient';
 
 import dotenv from 'dotenv';
 
@@ -7,6 +7,6 @@ export const client: IOEClient = new IOEClient();
 const token = !process.env.dev ? process.env.TOKEN : process.env.DEVTOKEN;
 
 export function run() {
-	client.login(token);
+  client.login(token);
 }
 export default client;

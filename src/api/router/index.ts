@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import {Router} from 'express';
 
 import cors from 'cors';
 import infoRoutes from './v1/info';
@@ -7,9 +7,9 @@ import messageRoutes from './v1/message';
 
 const router = Router();
 router.use(
-	cors({
-		origin: '*',
-	})
+  cors({
+    origin: '*',
+  })
 );
 
 router.use('/api/v1/info', infoRoutes);

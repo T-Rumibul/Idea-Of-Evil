@@ -1,12 +1,17 @@
-import { IOEClient } from '@bot/core/IOEClient';
-import { MessageReaction, PartialMessageReaction, PartialUser, User } from 'discord.js';
+import {IOEClient} from '@bot/core/IOEClient';
+import {
+  MessageReaction,
+  PartialMessageReaction,
+  PartialUser,
+  User,
+} from 'discord.js';
 
 export async function Emit(
-	reaction: MessageReaction | PartialMessageReaction,
-	user: User | PartialUser,
-	client: IOEClient
+  reaction: MessageReaction | PartialMessageReaction,
+  user: User | PartialUser,
+  client: IOEClient
 ) {
-	await client.modules.music.controls.reactionHandler(reaction, user);
+  await client.modules.music.controls.reactionHandler(reaction, user);
 }
 
 export default Emit;

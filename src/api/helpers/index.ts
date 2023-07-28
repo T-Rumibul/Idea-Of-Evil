@@ -6,30 +6,30 @@ dotenv.config();
 const Loggers: Map<string, Logger> = new Map();
 
 class Logger {
-	private enabled: boolean;
+  private enabled: boolean;
 
-	private debugger: Debug.Debugger;
+  private debugger: Debug.Debugger;
 
-	private name: string;
+  private name: string;
 
-	constructor(name: string) {
-		this.name = name;
-		this.enabled = process.env.DEBUG === '1';
-		this.debugger = Debug(this.name);
-	}
+  constructor(name: string) {
+    this.name = name;
+    this.enabled = process.env.DEBUG === '1';
+    this.debugger = Debug(this.name);
+  }
 
-	public log(message: string, data: any = '') {
-		if (this.enabled) {
-			Debug.enable(`${this.name}`);
-			this.debugger(message, data);
-		}
-	}
+  public log(message: string, data: any = '') {
+    if (this.enabled) {
+      Debug.enable(`${this.name}`);
+      this.debugger(message, data);
+    }
+  }
 }
 
 export default function getLogger(name: string) {
-	const tmp = Loggers.get(name);
-	const logger = !tmp ? new Logger(name) : tmp;
-	if (!tmp) Loggers.set(name, logger);
+  const tmp = Loggers.get(name);
+  const logger = !tmp ? new Logger(name) : tmp;
+  if (!tmp) Loggers.set(name, logger);
 
-	return logger;
+  return logger;
 }

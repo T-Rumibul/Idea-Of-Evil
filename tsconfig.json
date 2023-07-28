@@ -1,26 +1,16 @@
 {
-	"compilerOptions": {
-		"target": "esnext",
-		"module": "CommonJS",
-		"moduleResolution": "Node",
-		"noImplicitAny": true,
-		"removeComments": true,
-		"preserveConstEnums": true,
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"forceConsistentCasingInFileNames": true,
-		"noUncheckedIndexedAccess": true,
-		"outDir": "dist",
-		"allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
-		"sourceMap": true,
-		"baseUrl": "./",
-		"paths": {
-			"@bot/*": ["src/bot/*"],
-			"@api/*": ["src/api/*"],
-			"@src/*": ["src/*"]
-		}
-	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "**/*.spec.ts", "legacy"]
+  "extends": "./node_modules/gts/tsconfig-google.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@bot/*": ["./src/bot/*"],
+      "@api/*": ["./src/api/*"],
+      "@src/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
 }
