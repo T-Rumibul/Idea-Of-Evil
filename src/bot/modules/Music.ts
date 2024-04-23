@@ -12,6 +12,7 @@ import {MusicControls} from './Music/controls';
 import {MusicDisplay} from './Music/display';
 import {MusicQueue} from './Music/queue';
 import {MusicPlayer} from './Music/player';
+import { MusicAttachments } from './Music/attachments';
 
 dotenv.config();
 
@@ -45,6 +46,8 @@ export class Music extends Base {
   blockedUsers: Map<string, boolean> = new Map();
 
   youtube = new MusicYouTube(this, this.client);
+
+  attachments = new MusicAttachments(this, this.client);
 
   spotify = new MusicSpotify(this, this.client);
 
@@ -121,7 +124,7 @@ export class Music extends Base {
         await this.player.next(guildId);
       });
 
-      // Listen for empty event in queue and stop player and update display message
+      // Listen for empty event in queue to stop player and update display message
       this.queue.on('empty', async ([guildId]) => {
         this.player.stop(guildId);
         await this.display.updateDisplayMessage(guildId);
@@ -192,7 +195,10 @@ export class Music extends Base {
       const validateUrl = await ytdl.validate(message.content);
       if (validateUrl === 'sp_track')
         song = await this.spotify.getSong(message);
+      else if(message.content.length === 0 && message.attachments.size > 0) song = await this.attachments.getSong(message);
       else song = await this.youtube.getSong(message);
+
+
       const {guildId} = message;
 
       if (!song) return;

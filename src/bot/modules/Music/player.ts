@@ -8,6 +8,7 @@ import {
   getVoiceConnection,
   joinVoiceChannel,
   NoSubscriberBehavior,
+  StreamType,
 } from '@discordjs/voice';
 import EventEmitter from 'events';
 
@@ -78,11 +79,24 @@ export class MusicPlayer extends EventEmitter {
 
       const url = queue[0]?.link;
       if (!url) return false;
-      const stream = await ytdl.stream(url);
+      let stream;
+      let resource;
+      if(queue[0].attachment) {
+       
+        resource = createAudioResource(url, {
+          inputType: StreamType.Arbitrary,
+          inlineVolume: true
+        });
+        
+      }
+      else {
+        stream = await ytdl.stream(url);
+        resource = createAudioResource(stream.stream, {
+          inputType: stream.type,
+        });
+      }
 
-      const resource = createAudioResource(stream.stream, {
-        inputType: stream.type,
-      });
+      
 
       player.play(resource);
 

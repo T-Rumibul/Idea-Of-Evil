@@ -10,7 +10,10 @@
       "@bot/*": ["./src/bot/*"],
       "@api/*": ["./src/api/*"],
       "@src/*": ["./src/*"]
-    }
+    },
+    "lib": [
+      "es2017"
+    ]
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

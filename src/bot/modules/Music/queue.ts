@@ -9,6 +9,7 @@ export type Song = {
   repeat: boolean;
   duration: string;
   thumbnail: string;
+  attachment?: boolean;
 };
 export type Queue = {
   [key: string]: Song[];
