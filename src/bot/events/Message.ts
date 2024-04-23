@@ -4,7 +4,6 @@ import {ChannelType, Message} from 'discord.js';
 export async function Emit(message: Message, client: IOEClient) {
   try {
     if (message.author.bot) return;
-    console.log(message.attachments.first())
     if (
       (await client.IOE.externalDB.checkBlackListUser(message.author.id)) !==
       null

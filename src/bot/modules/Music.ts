@@ -12,7 +12,7 @@ import {MusicControls} from './Music/controls';
 import {MusicDisplay} from './Music/display';
 import {MusicQueue} from './Music/queue';
 import {MusicPlayer} from './Music/player';
-import { MusicAttachments } from './Music/attachments';
+import {MusicAttachments} from './Music/attachments';
 
 dotenv.config();
 
@@ -152,7 +152,7 @@ export class Music extends Base {
    * @returns {Promise<void>}
    */
   async updateMusicChannels() {
-    this.log(`Update music channels:`, this.channels);
+    this.log('Update music channels:', this.channels);
     this.channels = await this.client.IOE.externalDB.guild.getMusicChannels();
   }
 
@@ -187,21 +187,25 @@ export class Music extends Base {
       // Check if the user is temporary blocked from using the bot
       if (this.blockedUsers.get(message.member.id) === true) return;
 
-      // Delete the original message
-      this.client.IOE.utils.deleteMessageTimeout(message, 1000);
+      
       let song: Song | false;
 
       // Check if the URL is a Spotify track or a YouTube video
       const validateUrl = await ytdl.validate(message.content);
       if (validateUrl === 'sp_track')
         song = await this.spotify.getSong(message);
-      else if(message.content.length === 0 && message.attachments.size > 0) song = await this.attachments.getSong(message);
+      else if (message.content.length === 0 && message.attachments.size > 0)
+        song = await this.attachments.getSong(message);
       else song = await this.youtube.getSong(message);
 
-
+      
       const {guildId} = message;
 
-      if (!song) return;
+      if (!song) {
+        // Delete the original message
+        this.client.IOE.utils.deleteMessageTimeout(message, 1000);
+        return;
+      }
 
       // Add the song to the queue
       await this.queue.addToQueue(song, guildId!);
@@ -217,6 +221,8 @@ export class Music extends Base {
         message.member.voice.channelId!,
         message.guild!.voiceAdapterCreator
       );
+      // Delete the original message
+      this.client.IOE.utils.deleteMessageTimeout(message, 1000);
     } catch (e) {
       this.log(`Play error:`, e);
     }
