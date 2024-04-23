@@ -187,7 +187,6 @@ export class Music extends Base {
       // Check if the user is temporary blocked from using the bot
       if (this.blockedUsers.get(message.member.id) === true) return;
 
-      
       let song: Song | false;
 
       // Check if the URL is a Spotify track or a YouTube video
@@ -198,7 +197,6 @@ export class Music extends Base {
         song = await this.attachments.getSong(message);
       else song = await this.youtube.getSong(message);
 
-      
       const {guildId} = message;
 
       if (!song) {
@@ -213,7 +211,11 @@ export class Music extends Base {
       await this.display.updateDisplayMessage(guildId!);
 
       // If the player is already playing, return
-      if (await this.player.isPlaying(guildId!)) return;
+      if (await this.player.isPlaying(guildId!)) {
+        // Delete the original message
+        this.client.IOE.utils.deleteMessageTimeout(message, 1000);
+        return;
+      }
 
       // Start playing the song
       await this.player.start(
@@ -224,7 +226,7 @@ export class Music extends Base {
       // Delete the original message
       this.client.IOE.utils.deleteMessageTimeout(message, 1000);
     } catch (e) {
-      this.log(`Play error:`, e);
+      this.log('Play:', e);
     }
   }
 }
