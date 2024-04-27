@@ -46,67 +46,94 @@ export default class GuildController extends Base {
   }
 
   public write() {
-    if (this.updated.length < 1) {
-      this.log('There are no updated cache');
+    try {
+      if (this.updated.length < 1) {
+        this.log('There are no updated cache');
+        return false;
+      }
+      this.log('Write updated cache to db');
+      this.updated.forEach(async id => {
+        if (!this.cache.has(id)) return;
+        await GuildModel.updateOne({guildID: id}, this.cache.get(id));
+        this.cache.delete(id);
+      });
+      this.updated = [];
+      this.log('Write updated cache to db finished');
+      return true;
+    } catch (e) {
+      this.log('', e);
       return false;
     }
-    this.log('Write updated cache to db');
-    this.updated.forEach(async id => {
-      if (!this.cache.has(id)) return;
-      await GuildModel.updateOne({guildID: id}, this.cache.get(id));
-      this.cache.delete(id);
-    });
-    this.updated = [];
-    this.log('Write updated cache to db finished');
-    return true;
   }
 
   public async setMusicChannel(
     guildId: string,
     channelId: string
   ): Promise<void> {
-    const guildData = await this.get(guildId);
-    guildData.musicChannel = channelId;
-    await this.set(guildId, guildData);
-    this.write();
+    try {
+      const guildData = await this.get(guildId);
+      guildData.musicChannel = channelId;
+      await this.set(guildId, guildData);
+      this.write();
+    } catch (e) {
+      this.log('', e);
+    }
   }
   public async deleteMusicChannel(guildId: string): Promise<void> {
-    await GuildModel.updateOne(
-      {guildID: guildId},
-      {$unset: {musicChannel: ''}}
-    ).exec();
-    const doc = await GuildModel.findOne({guildID: guildId}).exec();
-    if (!doc) return;
-    this.cache.set(guildId, doc);
-    this.log('Removed music channel field', doc);
+    try {
+      await GuildModel.updateOne(
+        {guildID: guildId},
+        {$unset: {musicChannel: ''}}
+      ).exec();
+      const doc = await GuildModel.findOne({guildID: guildId}).exec();
+      if (!doc) return;
+      this.cache.set(guildId, doc);
+      this.log('Removed music channel field', doc);
+    } catch (e) {
+      this.log('', e);
+    }
   }
   public async getMusicChannels(): Promise<Map<string, string>> {
-    const {guilds} = this.client;
-    // Map key: guildID, value: channelID
-    const musicChannels = new Map();
+    try {
+      const {guilds} = this.client;
+      // Map key: guildID, value: channelID
+      const musicChannels = new Map();
 
-    for (const [key, value] of guilds.cache) {
-      const guildData = await this.get(key);
-      const musicChannelId = guildData.musicChannel;
-      if (!musicChannelId) {
-        musicChannels.set(key, '');
-      } else {
-        musicChannels.set(key, musicChannelId);
+      for (const [key, value] of guilds.cache) {
+        const guildData = await this.get(key);
+        const musicChannelId = guildData.musicChannel;
+        if (!musicChannelId) {
+          musicChannels.set(key, '');
+        } else {
+          musicChannels.set(key, musicChannelId);
+        }
       }
-    }
 
-    return musicChannels;
+      return musicChannels;
+    } catch (e) {
+      this.log('', e);
+      return new Map();
+    }
   }
 
   public async setWelcomeChannel(guildId: string, channelId: string) {
-    const guildData = await this.get(guildId);
-    guildData.welcomeChannel = channelId;
-    await this.set(guildId, guildData);
-    this.write();
+    try {
+      const guildData = await this.get(guildId);
+      guildData.welcomeChannel = channelId;
+      await this.set(guildId, guildData);
+      this.write();
+    } catch (e) {
+      this.log('', e);
+    }
   }
 
   public async getWelcomeChannel(guildId: string): Promise<string> {
-    const guildData = await this.get(guildId);
-    return guildData.welcomeChannel || '';
+    try {
+      const guildData = await this.get(guildId);
+      return guildData.welcomeChannel || '';
+    } catch (e) {
+      this.log('', e);
+      return '';
+    }
   }
 }
