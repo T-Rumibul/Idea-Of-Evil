@@ -86,7 +86,7 @@ export class MusicDisplay {
     }
 
     const newEmbed = JSON.parse(JSON.stringify(embedTemplate));
-    const queue = await this.music.queue.getQueue(guildId);
+    const queue = await this.music.queue.getGuildQueue(guildId);
     if (queue.length === 0) {
       const newMsg = await msg.edit({
         embeds: [newEmbed],

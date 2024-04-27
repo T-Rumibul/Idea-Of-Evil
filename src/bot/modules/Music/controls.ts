@@ -67,24 +67,14 @@ export class MusicControls {
           break;
         // Repeat
         case this.reactions[4]: {
-          const queue = await this.music.queue.getQueue(guildId);
-          if (!queue[0]) break;
-          queue[0].repeat = !queue[0].repeat;
-          await this.music.queue.setQueue(guildId, queue);
+          await this.music.queue.toggleRepeatFirst(guildId);
           await this.music.display.updateDisplayMessage(guildId);
           break;
         }
         // Shuffle
         case this.reactions[5]: {
-          const queue = await this.music.queue.getQueue(guildId);
-          if (queue.length <= 1) break;
-          const currentSong = queue.shift()!;
-          const shuffledQueue = await this.music.queue.shuffle(queue);
-          shuffledQueue.unshift(currentSong);
-
-          await this.music.queue.setQueue(guildId, shuffledQueue);
+          await this.music.queue.shuffleGuildQueue(guildId);
           await this.music.display.updateDisplayMessage(guildId);
-
           break;
         }
         // Join channel
@@ -116,7 +106,7 @@ export class MusicControls {
           break;
       }
     } catch (e) {
-      this.music.log(`Reaction handler error:`, e);
+      this.music.log('Reaction handler error:', e);
     }
   }
 }

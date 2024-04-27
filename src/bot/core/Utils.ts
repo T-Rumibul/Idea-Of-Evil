@@ -18,7 +18,7 @@ export class Utils {
     this.client = client;
   }
 
-  public isAdmin(member: GuildMember) {
+  isAdmin(member: GuildMember) {
     if (this.isOwner(member)) return true;
     if (member.permissions.has(PermissionFlagsBits.Administrator, true)) {
       return true;
@@ -32,7 +32,7 @@ export class Utils {
     return false;
   }
 
-  public isMod(member: GuildMember) {
+  isMod(member: GuildMember) {
     const modRoles: unknown[] = [];
     if (this.isAdmin(member)) return true;
     if (modRoles.length > 0) {
@@ -44,7 +44,7 @@ export class Utils {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  public isOwner(member: GuildMember) {
+  isOwner(member: GuildMember) {
     if (member.id === member.guild.ownerId) {
       return true;
     }
@@ -52,7 +52,7 @@ export class Utils {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  public async getMemberFromMentions(mention: string, guild: Guild) {
+  async getMemberFromMentions(mention: string, guild: Guild) {
     if (!mention) return null;
     const usedID = mention.replace(/([^0-9])+/g, '');
     const member = await guild.members.fetch(usedID);
@@ -60,14 +60,14 @@ export class Utils {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  public async getChannelFromMentions(mention: string, guild: Guild) {
+  async getChannelFromMentions(mention: string, guild: Guild) {
     const channelID = mention.replace(/([^0-9])+/g, '');
     const channel = await guild.channels.fetch(channelID);
     if (channel && channel.type !== ChannelType.GuildText) return null;
     return channel;
   }
 
-  public async deleteMessageTimeout(message: Message, timeout: number) {
+  async deleteMessageTimeout(message: Message, timeout: number) {
     setTimeout(async () => {
       try {
         if (!message || message.channel.type !== ChannelType.GuildText) return;
@@ -80,5 +80,34 @@ export class Utils {
         this.client.log('', 'Message delete error:', e);
       }
     }, timeout);
+  }
+
+  /**
+   * This code shuffles the elements of an array by iterating over the array
+   * backwards, and for each element in the array, selecting a random index
+   * between 0 and the current index, and swapping the element at the current
+   * index with the element at the randomly selected index. T he result is that
+   * the array is randomly shuffled.
+   */
+
+  shuffle<T>(inputArray: T[]): T[] {
+    try {
+      const a = inputArray;
+      if (a.length === 0) return a;
+      // Iterate over the array backwards, starting at the last element
+      for (let i = a.length - 1; i > 0; i -= 1) {
+        // Generate a random index between 0 and the current index
+        const j = Math.floor(Math.random() * (i + 1));
+
+        // Swap the current element with a randomly selected element
+        const temp = a[i]!;
+        a[i] = a[j]!;
+        a[j] = temp;
+      }
+      return a;
+    } catch (e) {
+      this.client.log('', 'Shuffle:', e);
+      return inputArray;
+    }
   }
 }

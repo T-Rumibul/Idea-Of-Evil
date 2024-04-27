@@ -73,7 +73,7 @@ export class MusicPlayer extends EventEmitter {
 
   private async play(player: AudioPlayer, guildId: string) {
     try {
-      const queue = await this.music.queue.getQueue(guildId);
+      const queue = await this.music.queue.getGuildQueue(guildId);
 
       if (queue.length === 0) return false;
 
@@ -81,22 +81,17 @@ export class MusicPlayer extends EventEmitter {
       if (!url) return false;
       let stream;
       let resource;
-      if(queue[0].attachment) {
-       
+      if (queue[0].attachment) {
         resource = createAudioResource(url, {
           inputType: StreamType.Arbitrary,
-          inlineVolume: true
+          inlineVolume: true,
         });
-        
-      }
-      else {
+      } else {
         stream = await ytdl.stream(url);
         resource = createAudioResource(stream.stream, {
           inputType: stream.type,
         });
       }
-
-      
 
       player.play(resource);
 
