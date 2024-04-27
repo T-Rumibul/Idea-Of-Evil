@@ -203,8 +203,22 @@ export class Music extends Base {
         song = await this.spotify.getSong(message);
       else if (message.content.length === 0 && message.attachments.size > 0)
         song = await this.attachments.getSong(message);
-      else song = await this.youtube.getSong(message);
+      else if (validateUrl === 'yt_video' || validateUrl === 'yt_playlist')
+        song = await this.youtube.getSong(message);
+      else {
+        this.client.IOE.utils.deleteMessageTimeout(message, 1000);
+        const msg = await message.reply({
+          embeds: [
+            {
+              description: '❌ **Ошибка!**',
+              color: 8340425,
+            },
+          ],
+        });
 
+        this.client.IOE.utils.deleteMessageTimeout(msg, 1000);
+        return;
+      }
       const {guildId} = message;
 
       if (!song) {
@@ -232,7 +246,7 @@ export class Music extends Base {
       // Delete the original message
       this.client.IOE.utils.deleteMessageTimeout(message, 1000);
     } catch (e) {
-      this.log('Play:', e);
+      this.log('', e);
     }
   }
 }
