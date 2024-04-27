@@ -1,8 +1,9 @@
-import IOEClient from '@bot/core/IOEClient';
+import type IOEClient from '@bot/core/IOEClient';
+import type {Music} from '../Music';
 import {EmbedField, GuildMember, Message, TextChannel} from 'discord.js';
 import ytsr from '@distube/ytsr';
 import * as ytdl from 'play-dl';
-import type {Music} from '../Music';
+
 import {youtube} from './RegEx';
 
 const chooseEmbedTemplate = {

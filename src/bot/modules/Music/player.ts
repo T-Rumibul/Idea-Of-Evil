@@ -30,15 +30,20 @@ export class MusicPlayer extends EventEmitter {
     channelId: string,
     voiceAdapterCreator: DiscordGatewayAdapterCreator
   ) {
-    let connection = getVoiceConnection(guildId);
-    if (!connection) {
-      connection = joinVoiceChannel({
-        channelId,
-        guildId,
-        adapterCreator: voiceAdapterCreator,
-      });
+    try {
+      let connection = getVoiceConnection(guildId);
+      if (!connection) {
+        connection = joinVoiceChannel({
+          channelId,
+          guildId,
+          adapterCreator: voiceAdapterCreator,
+        });
+      }
+      return connection;
+    } catch (e) {
+      this.music.log('Player:', e);
+      return;
     }
-    return connection;
   }
 
   async start(
@@ -46,29 +51,42 @@ export class MusicPlayer extends EventEmitter {
     channelId: string,
     voiceAdapterCreator: DiscordGatewayAdapterCreator
   ) {
-    const connection = await this.connect(
-      guildId,
-      channelId,
-      voiceAdapterCreator
-    );
-    const player = await this.get(guildId);
+    try {
+      const connection = await this.connect(
+        guildId,
+        channelId,
+        voiceAdapterCreator
+      );
+      if (!connection) return;
 
-    if (player.state.status === AudioPlayerStatus.Paused) {
+      const player = await this.get(guildId);
+      if (!player) return;
+
+      if (player.state.status === AudioPlayerStatus.Paused) {
+        connection.subscribe(player);
+        player.unpause();
+        return;
+      }
+
+      const playing = await this.play(player, guildId);
+      if (!playing) return;
       connection.subscribe(player);
-      player.unpause();
-      return;
+    } catch (e) {
+      this.music.log('Player:', e);
     }
-
-    const playing = await this.play(player, guildId);
-    if (!playing) return;
-    connection.subscribe(player);
   }
 
   async stop(guildId: string) {
-    const player = await this.get(guildId);
-    player.stop(true);
-    const connection = getVoiceConnection(guildId);
-    if (connection) connection.destroy();
+    try {
+      const player = await this.get(guildId);
+      if (!player) return;
+
+      player.stop(true);
+      const connection = getVoiceConnection(guildId);
+      if (connection) connection.destroy();
+    } catch (e) {
+      this.music.log('Player:', e);
+    }
   }
 
   private async play(player: AudioPlayer, guildId: string) {
@@ -98,59 +116,84 @@ export class MusicPlayer extends EventEmitter {
       player.unpause();
       return true;
     } catch (e) {
-      this.music.log(`Play error GUILD: ${guildId}`, e);
+      this.music.log('Playey', e);
       return false;
     }
   }
 
   async next(guildId: string) {
-    const connection = getVoiceConnection(guildId);
-    const player = await this.get(guildId);
-    if (!connection) return;
-    const playing = await this.play(player, guildId);
-    if (!playing) return;
-    connection.subscribe(player);
+    try {
+      const connection = getVoiceConnection(guildId);
+      const player = await this.get(guildId);
+      if (!player) return;
+      if (!connection) return;
+
+      const playing = await this.play(player, guildId);
+      if (!playing) return;
+      connection.subscribe(player);
+    } catch (e) {
+      this.music.log('Player:', e);
+    }
   }
 
   async isPlaying(guildId: string) {
-    if (this.players.has(guildId)) {
-      const player = this.players.get(guildId);
+    try {
+      if (this.players.has(guildId)) {
+        const player = this.players.get(guildId);
 
-      if (
-        player?.state.status === AudioPlayerStatus.Playing ||
-        player?.state.status === AudioPlayerStatus.Paused
-      )
-        return true;
+        if (
+          player?.state.status === AudioPlayerStatus.Playing ||
+          player?.state.status === AudioPlayerStatus.Paused
+        )
+          return true;
+      }
+      return false;
+    } catch (e) {
+      this.music.log('Player:', e);
+      return false;
     }
-    return false;
   }
 
   async get(guildId: string) {
-    if (this.players.has(guildId)) return this.players.get(guildId)!;
+    try {
+      if (this.players.has(guildId)) return this.players.get(guildId)!;
 
-    const player = await this.create(guildId);
+      const player = await this.create(guildId);
 
-    return player;
+      return player;
+    } catch (e) {
+      this.music.log('Player:', e);
+      return;
+    }
   }
 
   private async create(guildId: string) {
-    const player = createAudioPlayer({
-      behaviors: {
-        noSubscriber: NoSubscriberBehavior.Pause,
-      },
-    });
-    this.addEventListeners(player, guildId);
-    this.players.set(guildId, player);
-    return player;
+    try {
+      const player = createAudioPlayer({
+        behaviors: {
+          noSubscriber: NoSubscriberBehavior.Pause,
+        },
+      });
+      this.addEventListeners(player, guildId);
+      this.players.set(guildId, player);
+      return player;
+    } catch (e) {
+      this.music.log('Player:', e);
+      return;
+    }
   }
 
   private async addEventListeners(player: AudioPlayer, guildId: string) {
-    player.on(AudioPlayerStatus.Idle, async () => {
-      this.emit('idle', [player, guildId]);
-    });
-    player.on('error', e => {
-      this.emit('error', [player, guildId, e]);
-    });
+    try {
+      player.on(AudioPlayerStatus.Idle, async () => {
+        this.emit('idle', [player, guildId]);
+      });
+      player.on('error', e => {
+        this.emit('error', [player, guildId, e]);
+      });
+    } catch (e) {
+      this.music.log('Player:', e);
+    }
   }
 }
 

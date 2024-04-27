@@ -42,19 +42,19 @@ export class MusicControls {
       switch (reaction.emoji.name) {
         // Play
         case this.reactions[0]: {
-          player.unpause();
+          player?.unpause();
           break;
         }
         // Pause
         case this.reactions[1]:
-          player.pause(true);
+          player?.pause(true);
           break;
         // Stop
         case this.reactions[2]: {
           const connection = getVoiceConnection(guildId);
           if (connection) connection.destroy();
 
-          player.stop(true);
+          player?.stop(true);
           await this.music.queue.clearQueue(guildId || '');
 
           await this.music.display.updateDisplayMessage(msg.guildId || '');
@@ -91,8 +91,8 @@ export class MusicControls {
             break;
           if (oldConnection) oldConnection.destroy();
 
-          if (player.state.status !== AudioPlayerStatus.Idle) {
-            player.pause(true);
+          if (player?.state.status !== AudioPlayerStatus.Idle) {
+            player?.pause(true);
           }
 
           this.music.player.connect(
