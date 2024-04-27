@@ -4,15 +4,15 @@ import {Message, ChannelType} from 'discord.js';
 
 import dotenv from 'dotenv';
 
-import ytdl from './Music/ytdl';
-import type {Song} from './Music/queue';
-import {MusicYouTube} from './Music/youtube';
-import {MusicSpotify} from './Music/spotify';
-import {MusicControls} from './Music/controls';
-import {MusicDisplay} from './Music/display';
-import {MusicQueue} from './Music/queue';
-import {MusicPlayer} from './Music/player';
-import {MusicAttachments} from './Music/attachments';
+import ytdl from './Music/Ytdl';
+import type {Song} from './Music/Queue';
+import {MusicYouTube} from './Music/Youtube';
+import {MusicSpotify} from './Music/Spotify';
+import {MusicControls} from './Music/Controls';
+import {MusicDisplay} from './Music/Display';
+import {MusicQueue} from './Music/Queue';
+import {MusicPlayer} from './Music/Player';
+import {MusicAttachments} from './Music/Attachments';
 
 dotenv.config();
 
@@ -98,7 +98,7 @@ export class Music extends Base {
 
       // Get music channels from externalDB
       this.channels = await this.client.IOE.externalDB.guild.getMusicChannels();
-      this.log(`Music Channel:`, this.channels);
+      this.log('Music Channel:', this.channels);
 
       // Loop through each music channel and display message
       this.channels.forEach(async (channelId: string, guildId: string) => {
@@ -142,7 +142,7 @@ export class Music extends Base {
 
       this.log('Initialization completed.');
     } catch (error) {
-      this.log(`Init Error:`, error);
+      this.log('Init Error:', error);
     }
   }
 

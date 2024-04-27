@@ -13,7 +13,7 @@ import {
 import EventEmitter from 'events';
 
 import type {Music} from '../Music';
-import ytdl from './ytdl';
+import ytdl from './Ytdl';
 
 export class MusicPlayer extends EventEmitter {
   players: Map<string, AudioPlayer> = new Map();

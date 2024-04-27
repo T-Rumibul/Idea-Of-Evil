@@ -1,6 +1,6 @@
 import IOEClient from '@bot/core/IOEClient';
 import {Message} from 'discord.js';
-import ytdl from './ytdl';
+import ytdl from './Ytdl';
 import type {Music} from '../Music';
 
 export class MusicSpotify {

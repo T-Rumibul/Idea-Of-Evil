@@ -3,7 +3,7 @@ import {EmbedField, GuildMember, Message, TextChannel} from 'discord.js';
 import ytsr from '@distube/ytsr';
 import * as ytdl from 'play-dl';
 import type {Music} from '../Music';
-import {youtube} from './regEx';
+import {youtube} from './RegEx';
 
 const chooseEmbedTemplate = {
   title: '',
@@ -50,7 +50,7 @@ export class MusicYouTube {
       if (selectedTrack === -1) return false;
       return items[selectedTrack]?.url;
     } catch (err) {
-      this.music.log(`Youtube search error:`, err);
+      this.music.log('Youtube search error:', err);
       return false;
     }
   }
@@ -113,7 +113,7 @@ export class MusicYouTube {
           messageCollector.stop();
           this.client.IOE.utils.deleteMessageTimeout(chooseMsg, 10);
         } catch (e) {
-          this.music.log(`Remove choose msg error:`, e);
+          this.music.log('Remove choose msg error:', e);
         }
       };
       return await new Promise(resolve => {
@@ -165,7 +165,7 @@ export class MusicYouTube {
         });
       });
     } catch (e) {
-      this.music.log(`Choose track error:`, e);
+      this.music.log('Choose track error:', e);
       return -1;
     }
   }
