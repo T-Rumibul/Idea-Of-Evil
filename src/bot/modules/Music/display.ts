@@ -95,12 +95,15 @@ export class MusicDisplay {
     const newEmbed = JSON.parse(JSON.stringify(embedTemplate));
     const queue = await this.music.queue.getGuildQueue(guildId);
     if (queue.length === 0) {
-      const empy = new EmbedBuilder();
-      empy.setImage('https://media1.tenor.com/m/fqfMMLoeoKAAAAAd/zv.gif');
+      const empty = new EmbedBuilder();
+      empty.setImage(
+        'https://media.discordapp.net/attachments/716045712583950376/1233648072970604614/ZKZg.gif?ex=662ddbcc&is=662c8a4c&hm=cc591b38d2a6588b97feee140191596c2a03d103c49705dc6af3d9bc33fb7d42&=&width=510&height=515'
+      );
       const newMsg = await msg.edit({
-        embeds: [empy],
+        embeds: [empty],
       });
       this.music.playerDisplayMessages.set(guildId, newMsg);
+      return;
     }
     for (let i = 0; i < queue.length; i += 1) {
       const song = queue[i];
