@@ -116,18 +116,18 @@ export class Music extends Base {
 
         // Send display message
         await this.display.sendDisplayMessage(channel, guildId);
+        //Create buttons
+        await this.controls.initControlls(guildId);
       });
 
       // Listen for next song event in queue and update display message
       this.queue.on('nextSong', async ([queue, guildId]) => {
-        await this.display.updateDisplayMessage(guildId);
         await this.player.next(guildId);
       });
 
-      // Listen for empty event in queue to stop player and update display message
+      // Listen for empty event in queue to stop player
       this.queue.on('empty', async ([guildId]) => {
         this.player.stop(guildId);
-        await this.display.updateDisplayMessage(guildId);
       });
 
       // Listen for idle event in player and trigger next song in queue
@@ -215,8 +215,6 @@ export class Music extends Base {
 
       // Add the song to the queue
       await this.queue.addToQueue(song, guildId!);
-      // Update the display message
-      await this.display.updateDisplayMessage(guildId!);
 
       // If the player is already playing, return
       if (await this.player.isPlaying(guildId!)) {

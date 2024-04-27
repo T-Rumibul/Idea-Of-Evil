@@ -27,7 +27,14 @@ export class MusicDisplay {
     private music: Music,
     private client: IOEClient
   ) {}
-
+  async subscribeToEvents() {
+    this.music.queue.on('setGuildQueue', guildId => {
+      this.updateDisplayMessage(guildId);
+    });
+    this.music.queue.on('toggleRepeat', guildId => {
+      this.updateDisplayMessage(guildId);
+    });
+  }
   async sendDisplayMessage(channel: TextChannel, guildId: string) {
     const msg = this.music.playerDisplayMessages.get(guildId);
     if (msg && msg.channelId === channel.id) return;
@@ -62,7 +69,7 @@ export class MusicDisplay {
     });
     this.music.playerDisplayMessages.set(guildId, displayMessage);
     this.updateDisplayMessage(guildId);
-    await this.music.controls.initControlls(guildId);
+    await this.subscribeToEvents();
   }
 
   async updateDisplayMessage(guildId: string) {

@@ -20,45 +20,49 @@ export class MusicControls {
   ) {}
 
   async initControlls(guildId: string) {
-    const msg = this.music.playerDisplayMessages.get(guildId);
-    if (!msg) return;
+    try {
+      const msg = this.music.playerDisplayMessages.get(guildId);
+      if (!msg) return;
 
-    const togglePause = new ButtonBuilder()
-      .setCustomId('togglePause')
-      .setEmoji(':Play:1233628592995565620')
-      .setStyle(ButtonStyle.Primary);
+      const togglePause = new ButtonBuilder()
+        .setCustomId('togglePause')
+        .setEmoji(':Play:1233628592995565620')
+        .setStyle(ButtonStyle.Primary);
 
-    const stop = new ButtonBuilder()
-      .setCustomId('stop')
-      .setLabel('Stop')
-      .setStyle(ButtonStyle.Danger);
+      const stop = new ButtonBuilder()
+        .setCustomId('stop')
+        .setLabel('Stop')
+        .setStyle(ButtonStyle.Danger);
 
-    const next = new ButtonBuilder()
-      .setCustomId('next')
-      .setLabel('Next')
-      .setStyle(ButtonStyle.Primary);
+      const next = new ButtonBuilder()
+        .setCustomId('next')
+        .setLabel('Next')
+        .setStyle(ButtonStyle.Primary);
 
-    const repeat = new ButtonBuilder()
-      .setCustomId('repeat')
-      .setLabel('Repeat')
-      .setStyle(ButtonStyle.Primary);
+      const repeat = new ButtonBuilder()
+        .setCustomId('repeat')
+        .setLabel('Repeat')
+        .setStyle(ButtonStyle.Primary);
 
-    const shuffle = new ButtonBuilder()
-      .setCustomId('shuffle')
-      .setLabel('Shuffle')
-      .setStyle(ButtonStyle.Primary);
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      togglePause,
-      stop,
-      next,
-      repeat,
-      shuffle
-    );
+      const shuffle = new ButtonBuilder()
+        .setCustomId('shuffle')
+        .setLabel('Shuffle')
+        .setStyle(ButtonStyle.Primary);
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        togglePause,
+        stop,
+        next,
+        repeat,
+        shuffle
+      );
 
-    msg?.channel.send({
-      content: '',
-      components: [row],
-    });
+      msg?.channel.send({
+        content: '',
+        components: [row],
+      });
+    } catch (e) {
+      this.music.log('Controls:', e);
+    }
   }
   async interactionHandler(interaction: ButtonInteraction) {
     try {
@@ -76,20 +80,9 @@ export class MusicControls {
           interaction.update({});
           break;
         }
-        // Pause
-        case 'pause':
-          player.pause(true);
-          interaction.update({});
-          break;
         // Stop
         case 'stop': {
-          const connection = getVoiceConnection(guildId);
-          if (connection) connection.destroy();
-
-          player?.stop(true);
-          await this.music.queue.clearQueue(guildId || '');
-
-          await this.music.display.updateDisplayMessage(guildId);
+          this.music.player.stop(guildId);
           interaction.update({});
           break;
         }
@@ -101,7 +94,6 @@ export class MusicControls {
         // Repeat
         case 'repeat': {
           await this.music.queue.toggleRepeatFirst(guildId);
-          await this.music.display.updateDisplayMessage(guildId);
           interaction.update({});
           break;
         }

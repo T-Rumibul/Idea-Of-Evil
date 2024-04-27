@@ -51,7 +51,7 @@ export class MusicQueue extends EventEmitter {
 
       queue[guildId] = songs;
       db.push('queue', queue);
-      this.emit('set');
+      this.emit('setGuildQueue', guildId);
     } catch (e) {
       this.music.log('Queue:', e);
     }
@@ -59,14 +59,9 @@ export class MusicQueue extends EventEmitter {
 
   async clearQueue(guildId: string) {
     try {
-      if (await db.has('queue')) {
-        const queue = await this.getQueue();
-        queue[guildId] = [];
-        db.push('queue', queue);
-        this.emit('clear');
-        return true;
-      }
-      return false;
+      this.setGuildQueue(guildId, []);
+      this.emit('clear');
+      return true;
     } catch (e) {
       this.music.log('Queue:', e);
       return false;
@@ -92,8 +87,6 @@ export class MusicQueue extends EventEmitter {
 
       guildQueue.shift();
       this.setGuildQueue(guildId, guildQueue);
-
-      this.emit('remove');
     } catch (e) {
       this.music.log('Queue:', e);
     }
@@ -102,14 +95,14 @@ export class MusicQueue extends EventEmitter {
   async nextSong(guildId: string, force?: boolean) {
     try {
       const queue = await this.getGuildQueue(guildId);
+
+      if (!queue[0].repeat || force) {
+        await this.removeFirst(guildId);
+      }
       if (queue.length === 0) {
         this.emit('empty', [guildId]);
         return;
       }
-      if (!queue[0].repeat || force) {
-        await this.removeFirst(guildId);
-      }
-
       this.emit('nextSong', [queue, guildId]);
     } catch (e) {
       this.music.log('Queue:', e);
@@ -122,6 +115,7 @@ export class MusicQueue extends EventEmitter {
       if (!guildQueue[0]) return;
       guildQueue[0].repeat = !guildQueue[0].repeat;
       await this.setGuildQueue(guildId, guildQueue);
+      this.emit('toggleRepeat', guildId);
     } catch (e) {
       this.music.log('Queue:', e);
     }
