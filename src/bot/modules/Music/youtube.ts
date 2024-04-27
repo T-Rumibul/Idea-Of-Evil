@@ -57,28 +57,33 @@ export class MusicYouTube {
   }
 
   async getSong(message: Message) {
-    let url: string | false = '';
-    url = `https://www.youtube.com/watch?v=${message.content.match(
-      youtube
-    )?.[1]}`;
-    this.music.log(url);
-    if (!message.content.match(youtube)) url = await this.search(message);
-    if (!url) return false;
-    const song = {
-      title: '',
-      link: '',
-      repeat: false,
-      duration: '',
-      thumbnail: '',
-    };
+    try {
+      let url: string | false = '';
+      url = `https://www.youtube.com/watch?v=${message.content.match(
+        youtube
+      )?.[1]}`;
 
-    const videoDetails = (await ytdl.video_basic_info(url)).video_details;
-    song.title = videoDetails.title || '';
-    song.link = videoDetails.url;
-    song.duration = videoDetails.durationRaw;
-    song.thumbnail = videoDetails.thumbnails.pop()?.url || '';
+      if (!message.content.match(youtube)) url = await this.search(message);
+      if (!url) return false;
+      const song = {
+        title: '',
+        link: '',
+        repeat: false,
+        duration: '',
+        thumbnail: '',
+      };
 
-    return song;
+      const videoDetails = (await ytdl.video_basic_info(url)).video_details;
+      song.title = videoDetails.title || '';
+      song.link = videoDetails.url;
+      song.duration = videoDetails.durationRaw;
+      song.thumbnail = videoDetails.thumbnails.pop()?.url || '';
+
+      return song;
+    } catch (e) {
+      this.music.log('YouTube:', e);
+      return false;
+    }
   }
 
   async sendChooseMessage(

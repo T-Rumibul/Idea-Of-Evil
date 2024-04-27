@@ -95,8 +95,10 @@ export class MusicDisplay {
     const newEmbed = JSON.parse(JSON.stringify(embedTemplate));
     const queue = await this.music.queue.getGuildQueue(guildId);
     if (queue.length === 0) {
+      const empy = new EmbedBuilder();
+      empy.setImage('https://media1.tenor.com/m/fqfMMLoeoKAAAAAd/zv.gif');
       const newMsg = await msg.edit({
-        embeds: [newEmbed],
+        embeds: [empy],
       });
       this.music.playerDisplayMessages.set(guildId, newMsg);
     }
