@@ -28,10 +28,7 @@ export class MusicDisplay {
     private client: IOEClient
   ) {}
   async subscribeToEvents() {
-    this.music.queue.on('setGuildQueue', guildId => {
-      this.updateDisplayMessage(guildId);
-    });
-    this.music.queue.on('toggleRepeat', guildId => {
+    this.music.queue.on('setGuildQueue', async guildId => {
       this.updateDisplayMessage(guildId);
     });
   }

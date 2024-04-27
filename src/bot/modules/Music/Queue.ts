@@ -96,7 +96,7 @@ export class MusicQueue extends EventEmitter {
     try {
       const queue = await this.getGuildQueue(guildId);
 
-      if (!queue[0].repeat || force) {
+      if (!queue[0]?.repeat || force) {
         await this.removeFirst(guildId);
       }
       if (queue.length === 0) {
@@ -115,9 +115,10 @@ export class MusicQueue extends EventEmitter {
       if (!guildQueue[0]) return;
       guildQueue[0].repeat = !guildQueue[0].repeat;
       await this.setGuildQueue(guildId, guildQueue);
-      this.emit('toggleRepeat', guildId);
+      return guildQueue[0].repeat;
     } catch (e) {
       this.music.log('Queue:', e);
+      return false;
     }
   }
 
