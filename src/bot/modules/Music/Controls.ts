@@ -1,17 +1,10 @@
 import type IOEClient from '@bot/core/IOEClient';
-import {getVoiceConnection, AudioPlayerStatus} from '@discordjs/voice';
 import {
-  type MessageReaction,
-  type PartialMessageReaction,
-  type User,
-  type PartialUser,
   ButtonBuilder,
   ButtonStyle,
-  Interaction,
   ActionRowBuilder,
   ButtonInteraction,
-  Message,
-  InteractionResponse,
+  TextChannel,
 } from 'discord.js';
 import type {Music} from '../Music';
 
@@ -67,58 +60,81 @@ export class MusicControls {
       this.music.log('Controls:', e);
     }
   }
+  private async setInteractionTimeout(
+    interaction: ButtonInteraction,
+    time: number
+  ) {
+    this.interactionTimeout.add(interaction.guildId);
+
+    setTimeout(() => {
+      this.interactionTimeout.delete(interaction.guildId);
+      if (!interaction.replied) interaction.update({});
+    }, time);
+  }
+
+  private async sendTimeoutWarning(channel: TextChannel) {
+    try {
+      const warning = await channel?.send({
+        embeds: [
+          {
+            description:
+              '❌ **Пожалуйста, дождитесь 1 секунды перед следующим нажатием кнопки. Нажимайте кнопку менее часто, пожалуйста.**',
+            color: 8340425,
+          },
+        ],
+      });
+      setTimeout(() => warning?.delete(), 1000);
+    } catch (e) {
+      this.music.log('Controls:', e);
+    }
+  }
   async interactionHandler(interaction: ButtonInteraction) {
     try {
       const id = interaction.customId;
       const guildId = interaction.guildId!;
 
       if (this.interactionTimeout.has(guildId)) {
-        const warning = await interaction.channel?.send({
-          embeds: [
-            {
-              description:
-                '❌ **Пожалуйста, дождитесь 1 секунды перед следующим нажатием кнопки. Нажимайте кнопку менее часто, пожалуйста.**',
-              color: 8340425,
-            },
-          ],
-        });
-        setTimeout(() => warning?.delete(), 1500);
+        this.sendTimeoutWarning(<TextChannel>interaction.channel);
         return;
       }
-      this.interactionTimeout.add(guildId);
-      const player = await this.music.player.get(guildId);
 
-      setTimeout(() => {
-        this.interactionTimeout.delete(guildId);
-        if (!interaction.replied) interaction.update({});
-      }, 1000);
+      const player = await this.music.player.get(guildId);
       if (!player) return;
 
       switch (id) {
         // Resume
-        case 'togglePause': {
+        case 'togglePause':
+          this.setInteractionTimeout(interaction, 100);
           if (player.state.status === 'playing') player.pause();
           else player.unpause();
           break;
-        }
+
         // Stop
-        case 'stop': {
+        case 'stop':
+          this.setInteractionTimeout(interaction, 100);
           this.music.player.stop(guildId);
           break;
-        }
+
         // Next
         case 'next':
+          this.setInteractionTimeout(interaction, 150);
           await this.music.queue.nextSong(guildId, true);
           break;
         // Repeat
-        case 'repeat': {
+        case 'repeat':
+          this.setInteractionTimeout(interaction, 1500);
           const enabled = await this.music.queue.toggleRepeatFirst(guildId);
           repeat.setStyle(enabled ? ButtonStyle.Success : ButtonStyle.Primary);
           interaction.update({
             components: [row],
           });
           break;
-        }
+
+        case 'shuffle':
+          this.setInteractionTimeout(interaction, 1000);
+          this.music.queue.shuffleGuildQueue(guildId);
+          break;
+
         default:
           break;
       }
