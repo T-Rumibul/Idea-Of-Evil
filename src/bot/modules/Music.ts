@@ -1,6 +1,6 @@
 import Base from '@bot/core/Base';
 import type {IOEClient} from '@bot/core/IOEClient';
-import {Message, ChannelType} from 'discord.js';
+import {Message, ChannelType, Interaction, ButtonInteraction} from 'discord.js';
 
 import dotenv from 'dotenv';
 
@@ -156,6 +156,14 @@ export class Music extends Base {
     this.channels = await this.client.IOE.externalDB.guild.getMusicChannels();
   }
 
+  async interaction(interaction: Interaction) {
+    try {
+      if (interaction.channelId === this.channels.get(interaction.guildId!))
+        this.controls.interactionHandler(<ButtonInteraction>interaction);
+    } catch (e) {
+      this.log('', e);
+    }
+  }
   /**
    * Plays a song based on the message contents.
    *

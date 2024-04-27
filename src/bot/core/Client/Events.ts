@@ -5,6 +5,7 @@ import PresenceUpdate from '@bot/events/PresenceUpdate';
 import {ActivityType} from 'discord.js';
 import type {GuildMember, Message} from 'discord.js';
 import type {IOEClient} from '../IOEClient';
+import InteractionCreate from '@bot/events/InteractionCreate';
 
 export class IOEClientEvents {
   constructor(private client: IOEClient) {}
@@ -25,7 +26,9 @@ export class IOEClientEvents {
     this.client.on('messageReactionAdd', async (reaction, user) => {
       ReactionAdd(reaction, user, this.client);
     });
-
+    this.client.on('interactionCreate', async interaction => {
+      InteractionCreate(interaction, this.client);
+    });
     this.client.on('shardError', error => {
       this.client.log('BOT', 'ShardError:', error);
     });

@@ -10,8 +10,6 @@ export async function Emit(
   reaction: MessageReaction | PartialMessageReaction,
   user: User | PartialUser,
   client: IOEClient
-) {
-  await client.modules.music.controls.reactionHandler(reaction, user);
-}
+) {}
 
 export default Emit;

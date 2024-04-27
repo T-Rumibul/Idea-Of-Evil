@@ -1,16 +1,19 @@
 import type IOEClient from '@bot/core/IOEClient';
 import {getVoiceConnection, AudioPlayerStatus} from '@discordjs/voice';
-import type {
-  MessageReaction,
-  PartialMessageReaction,
-  User,
-  PartialUser,
+import {
+  type MessageReaction,
+  type PartialMessageReaction,
+  type User,
+  type PartialUser,
+  ButtonBuilder,
+  ButtonStyle,
+  Interaction,
+  ActionRowBuilder,
+  ButtonInteraction,
 } from 'discord.js';
 import type {Music} from '../Music';
 
 export class MusicControls {
-  private reactions: string[] = ['▶', '⏸', '⏹', '⏭', '🔁', '🔀', '🇯']; // '🔇', '🔉', '🔊'
-
   constructor(
     private music: Music,
     private client: IOEClient
@@ -18,95 +21,95 @@ export class MusicControls {
 
   async initControlls(guildId: string) {
     const msg = this.music.playerDisplayMessages.get(guildId);
-    this.reactions.forEach(async (reaction: string) => {
-      if (!msg) return;
-      await msg.react(reaction);
+    if (!msg) return;
+
+    const togglePause = new ButtonBuilder()
+      .setCustomId('togglePause')
+      .setEmoji(':Play:1233628592995565620')
+      .setStyle(ButtonStyle.Primary);
+
+    const stop = new ButtonBuilder()
+      .setCustomId('stop')
+      .setLabel('Stop')
+      .setStyle(ButtonStyle.Danger);
+
+    const next = new ButtonBuilder()
+      .setCustomId('next')
+      .setLabel('Next')
+      .setStyle(ButtonStyle.Primary);
+
+    const repeat = new ButtonBuilder()
+      .setCustomId('repeat')
+      .setLabel('Repeat')
+      .setStyle(ButtonStyle.Primary);
+
+    const shuffle = new ButtonBuilder()
+      .setCustomId('shuffle')
+      .setLabel('Shuffle')
+      .setStyle(ButtonStyle.Primary);
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      togglePause,
+      stop,
+      next,
+      repeat,
+      shuffle
+    );
+
+    msg?.channel.send({
+      content: '',
+      components: [row],
     });
   }
-
-  async reactionHandler(
-    reaction: MessageReaction | PartialMessageReaction,
-    user: User | PartialUser
-  ) {
+  async interactionHandler(interaction: ButtonInteraction) {
     try {
-      const msg = this.music.playerDisplayMessages.get(
-        reaction.message.guildId || ''
-      );
-      if (!msg) return;
-
-      if (user.bot || reaction.message.id !== msg.id) return;
-      reaction.users.remove(user.id);
-      const {guildId} = reaction.message;
-      if (!guildId) return;
+      const id = interaction.customId;
+      const guildId = interaction.guildId!;
       const player = await this.music.player.get(guildId);
-      switch (reaction.emoji.name) {
-        // Play
-        case this.reactions[0]: {
-          player?.unpause();
+
+      if (!player) return;
+
+      switch (id) {
+        // Resume
+        case 'togglePause': {
+          if (player.state.status === 'playing') player.pause();
+          else player.unpause();
+          interaction.update({});
           break;
         }
         // Pause
-        case this.reactions[1]:
-          player?.pause(true);
+        case 'pause':
+          player.pause(true);
+          interaction.update({});
           break;
         // Stop
-        case this.reactions[2]: {
+        case 'stop': {
           const connection = getVoiceConnection(guildId);
           if (connection) connection.destroy();
 
           player?.stop(true);
           await this.music.queue.clearQueue(guildId || '');
 
-          await this.music.display.updateDisplayMessage(msg.guildId || '');
-
+          await this.music.display.updateDisplayMessage(guildId);
+          interaction.update({});
           break;
         }
-        // Skip
-        case this.reactions[3]:
+        // Next
+        case 'next':
           await this.music.queue.nextSong(guildId, true);
+          interaction.update({});
           break;
         // Repeat
-        case this.reactions[4]: {
+        case 'repeat': {
           await this.music.queue.toggleRepeatFirst(guildId);
           await this.music.display.updateDisplayMessage(guildId);
-          break;
-        }
-        // Shuffle
-        case this.reactions[5]: {
-          await this.music.queue.shuffleGuildQueue(guildId);
-          await this.music.display.updateDisplayMessage(guildId);
-          break;
-        }
-        // Join channel
-        case this.reactions[6]: {
-          const guild = await this.client.guilds.fetch(guildId);
-          const member = await guild.members.fetch(user.id);
-          const newChannel = member.voice.channel;
-          const oldConnection = getVoiceConnection(guildId);
-          if (!newChannel) break;
-          if (
-            oldConnection &&
-            oldConnection.joinConfig.channelId === newChannel.id
-          )
-            break;
-          if (oldConnection) oldConnection.destroy();
-
-          if (player?.state.status !== AudioPlayerStatus.Idle) {
-            player?.pause(true);
-          }
-
-          this.music.player.connect(
-            guildId,
-            newChannel.id,
-            guild.voiceAdapterCreator
-          );
+          interaction.update({});
           break;
         }
         default:
           break;
       }
     } catch (e) {
-      this.music.log('Reaction handler error:', e);
+      this.music.log('Controls:', e);
     }
   }
 }
