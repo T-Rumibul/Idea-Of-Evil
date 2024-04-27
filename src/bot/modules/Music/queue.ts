@@ -25,65 +25,88 @@ export class MusicQueue extends EventEmitter {
   }
 
   async getQueue(guildId: string) {
-    if (await db.has('queue')) {
-      const queue = await db.get<Queue>('queue');
-      if (!queue[guildId]) {
-        queue[guildId] = [];
-        db.push('queue', queue);
+    try {
+      if (await db.has('queue')) {
+        const queue = await db.get<Queue>('queue');
+        if (!queue[guildId]) {
+          queue[guildId] = [];
+          db.push('queue', queue);
+          return queue[guildId] || [];
+        }
         return queue[guildId] || [];
       }
+      const queue: Queue = {};
+      queue[guildId] = [];
+      db.push('queue', queue);
       return queue[guildId] || [];
+    } catch (e) {
+      this.music.log('Queue:', e);
+      return [];
     }
-    const queue: Queue = {};
-    queue[guildId] = [];
-    db.push('queue', queue);
-    return queue[guildId] || [];
   }
 
   async setQueue(guildId: string, songs: Song[]) {
-    await this.getQueue(guildId);
-    const queue = await db.get<Queue>('queue');
-    queue[guildId] = songs;
-    db.push('queue', queue);
-    this.emit('set');
-    return queue[guildId];
+    try {
+      await this.getQueue(guildId);
+      const queue = await db.get<Queue>('queue');
+      queue[guildId] = songs;
+      db.push('queue', queue);
+      this.emit('set');
+      return queue[guildId];
+    } catch (e) {
+      this.music.log('Queue:', e);
+      return [];
+    }
   }
 
   async clearQueue(guildId: string) {
-    if (await db.has('queue')) {
-      const queue = await db.get<Queue>('queue');
-      queue[guildId] = [];
-      db.push('queue', queue);
-      this.emit('clear');
-      return true;
+    try {
+      if (await db.has('queue')) {
+        const queue = await db.get<Queue>('queue');
+        queue[guildId] = [];
+        db.push('queue', queue);
+        this.emit('clear');
+        return true;
+      }
+      return false;
+    } catch (e) {
+      this.music.log('Queue:', e);
+      return false;
     }
-    return false;
   }
 
   async addToQueue(song: Song, guildId: string) {
-    let queue: Queue = {};
-    if (await db.has('queue')) queue = await db.get<Queue>('queue');
-    const guildQueue = queue[guildId];
-    if (guildQueue) {
-      guildQueue.push(song);
-      queue[guildId] = guildQueue;
-      db.push('queue', queue);
-    } else {
-      queue[guildId] = [song];
-      db.push('queue', queue);
+    try {
+      let queue: Queue = {};
+      if (await db.has('queue')) queue = await db.get<Queue>('queue');
+      const guildQueue = queue[guildId];
+      if (guildQueue) {
+        guildQueue.push(song);
+        queue[guildId] = guildQueue;
+        db.push('queue', queue);
+      } else {
+        queue[guildId] = [song];
+        db.push('queue', queue);
+      }
+      this.emit('add');
+    } catch (e) {
+      this.music.log('Queue:', e);
     }
-    this.emit('add');
   }
 
   async removeFromQueue(guildId: string) {
-    let queue: Queue = {};
-    if (await db.has('queue')) queue = await db.get<Queue>('queue');
-    const guildQueue = queue[guildId];
-    if (guildQueue) {
-      guildQueue.shift();
-      queue[guildId] = guildQueue;
+    try {
+      let queue: Queue = {};
+      if (await db.has('queue')) queue = await db.get<Queue>('queue');
+      const guildQueue = queue[guildId];
+      if (guildQueue) {
+        guildQueue.shift();
+        queue[guildId] = guildQueue;
+      }
+      this.emit('remove');
+    } catch (e) {
+      this.music.log('Queue:', e);
     }
-    this.emit('remove');
   }
 
   /**
@@ -111,22 +134,26 @@ export class MusicQueue extends EventEmitter {
       this.emit('shuffle');
       return a;
     } catch (e) {
-      this.music.log(`Shuffle Error:`, e);
+      this.music.log('Queue:', e);
       return inputArray;
     }
   }
 
   async nextSong(guildId: string, force?: boolean) {
-    const queue = await this.getQueue(guildId);
+    try {
+      const queue = await this.getQueue(guildId);
 
-    if ((queue[0] && !queue[0].repeat) || force) {
-      queue.shift();
-      await this.setQueue(guildId, queue);
+      if ((queue[0] && !queue[0].repeat) || force) {
+        queue.shift();
+        await this.setQueue(guildId, queue);
+      }
+      if (queue.length === 0) {
+        this.emit('empty', [guildId]);
+        return;
+      }
+      this.emit('nextSong', [queue, guildId]);
+    } catch (e) {
+      this.music.log('Queue:', e);
     }
-    if (queue.length === 0) {
-      this.emit('empty', [guildId]);
-      return;
-    }
-    this.emit('nextSong', [queue, guildId]);
   }
 }
