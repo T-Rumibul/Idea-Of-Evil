@@ -42,7 +42,6 @@ export class MusicYouTube {
         this.client.IOE.utils.deleteMessageTimeout(msg, 5000);
         return false;
       }
-      this.music.blockUser(message.member!.id);
       const selectedTrack = await this.sendChooseMessage(
         message.member!,
         <TextChannel>message.channel,
@@ -62,8 +61,9 @@ export class MusicYouTube {
       url = `https://www.youtube.com/watch?v=${message.content.match(
         youtube
       )?.[1]}`;
-
+      this.music.trackSelection = true;
       if (!message.content.match(youtube)) url = await this.search(message);
+      
       if (!url) return false;
       const song = {
         title: '',
@@ -78,10 +78,11 @@ export class MusicYouTube {
       song.link = videoDetails.url;
       song.duration = videoDetails.durationRaw;
       song.thumbnail = videoDetails.thumbnails.pop()?.url || '';
-
+      this.music.trackSelection = false;
       return song;
     } catch (e) {
       this.music.log('YouTube:', e);
+      this.music.trackSelection = false;
       return false;
     }
   }
@@ -161,7 +162,7 @@ export class MusicYouTube {
               resolve(4);
               removeMsgAndCollector(timeoutId);
               break;
-            case 'c' || 'cancel' || '\u0446':
+            case 'с' || 'cancel' || '\u0446':
               resolve(-1);
               removeMsgAndCollector(timeoutId);
               break;

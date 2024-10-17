@@ -34,7 +34,6 @@ export class MusicDisplay {
   }
   async sendDisplayMessage(channel: TextChannel, guildId: string) {
     const msg = this.music.playerDisplayMessages.get(guildId);
-    if (msg && msg.channelId === channel.id) return;
     if (msg && msg.deletable) msg.delete();
     if (
       (

@@ -2,7 +2,6 @@ import * as ytdl from 'play-dl';
 import dotenv from 'dotenv';
 
 dotenv.config();
-
 ytdl.setToken({
   spotify: {
     client_id: process.env.SPOTIFY_CLIENT_ID || '',

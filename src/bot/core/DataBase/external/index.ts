@@ -33,17 +33,9 @@ export class ExternalDB extends Base {
     });
   }
 
-  public async syncDB(): Promise<void> {
-    this.guild.write();
-    this.profile.write();
-  }
-
   public async blackListUser(id: string, reason: string): Promise<void> {
-    const profileData = await this.profile.get(id);
-    profileData.ban = true;
-    profileData.banReason = reason;
-    await this.profile.set(id, profileData);
-    this.profile.write();
+    await this.profile.blackListUser(id, reason);
+   
   }
 
   public async checkBlackListUser(id: string): Promise<string | null> {

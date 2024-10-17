@@ -107,7 +107,9 @@ export class MusicPlayer extends EventEmitter {
           inlineVolume: true,
         });
       } else {
-        stream = await ytdl.stream(url);
+        stream = await ytdl.stream(url, {
+          discordPlayerCompatibility: true,
+        });
         resource = createAudioResource(stream.stream, {
           inputType: stream.type,
         });
@@ -118,7 +120,7 @@ export class MusicPlayer extends EventEmitter {
       player.unpause();
       return true;
     } catch (e) {
-      this.music.log('Playey', e);
+      this.music.log('Player', e);
       return false;
     }
   }

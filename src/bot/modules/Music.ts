@@ -44,7 +44,7 @@ export class Music extends Base {
    * @type {Map<string, boolean>}
    */
   blockedUsers: Map<string, boolean> = new Map();
-
+  trackSelection: boolean = false;
   youtube = new MusicYouTube(this, this.client);
 
   attachments = new MusicAttachments(this, this.client);
@@ -173,7 +173,7 @@ export class Music extends Base {
   async play(message: Message) {
     // Check if the message is sent from a text channel
     if (message.channel.type !== ChannelType.GuildText) return;
-
+    if(this.trackSelection) return;
     try {
       // Check if the message is sent from the music channel
       if (message.channelId !== this.channels.get(message.guildId!)) return;
