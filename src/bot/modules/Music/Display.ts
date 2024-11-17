@@ -1,6 +1,7 @@
 import type IOEClient from '@bot/core/IOEClient';
 import {TextChannel, EmbedBuilder, ChannelType} from 'discord.js';
 import type {Music} from '../Music';
+import { deleteAllMessages } from '@src/utils/Channel';
 
 type EmbedField = {
   name: string;
@@ -40,25 +41,12 @@ export class MusicDisplay {
         await channel.messages.fetch({
           cache: true,
         })
-      ).size > 0
-    )
-      try {
-        await channel.bulkDelete(
-          (
-            await channel.messages.fetch({
-              cache: true,
-            })
-          ).size
-        );
-      } catch (err) {
-        this.client.log('MUSIC', 'Error in message bulk delete', err);
-        await channel.send(
-          '⚠ **Удалите старые сообщения вручную или выберите другой канал для музыкального модуля**'
-        );
-        await this.client.IOE.externalDB.guild.deleteMusicChannel(guildId);
-        await this.music.updateMusicChannels();
-        return;
-      }
+      ).size > 60
+    ) {
+      await channel.send('Канал содержит более 60 сообщений, выберите другой канал для музыки.')
+      return;
+    }
+    await deleteAllMessages(channel)
     const embed = new EmbedBuilder(embedTemplate);
     const displayMessage = await channel.send({
       embeds: [embed],

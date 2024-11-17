@@ -1,4 +1,5 @@
 import {IOEClient} from '@bot/core/IOEClient';
+import { deleteAllMessages } from '@src/utils/Channel';
 import {
   ChannelType,
   ChatInputCommandInteraction,
@@ -72,14 +73,13 @@ async function execute(
           await channel.messages.fetch({
             cache: true,
           })
-        ).size > 0
+        ).size > 60
       ) {
-        await interaction.reply(
-          'В канале присутствуют сообщения, создайте новый или удалите их.'
-        );
-
-        return;
+        await interaction.reply('Выбраный канал содержит более 60 сообщений, пожалуйста выберите другой канал.')
+       return;
       }
+      await interaction.deferReply()
+      await deleteAllMessages(channel)
       const {guildId} = interaction;
       if (!guildId) return;
       await client.IOE.externalDB.guild.setMusicChannel(guildId, channel.id);

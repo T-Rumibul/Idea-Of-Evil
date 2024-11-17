@@ -98,7 +98,7 @@ export class Music extends Base {
 
       // Get music channels from externalDB
       this.channels = await this.client.IOE.externalDB.guild.getMusicChannels();
-      this.log('Music Channel:', this.channels);
+      this.log('Music Channels:', this.channels);
 
       // Loop through each music channel and display message
       this.channels.forEach(async (channelId: string, guildId: string) => {
