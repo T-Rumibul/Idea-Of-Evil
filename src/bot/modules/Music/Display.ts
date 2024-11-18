@@ -1,7 +1,7 @@
 import type IOEClient from '@bot/core/IOEClient';
 import {TextChannel, EmbedBuilder, ChannelType} from 'discord.js';
 import type {Music} from '../Music';
-import { deleteAllMessages } from '@src/utils/Channel';
+import {deleteAllMessages} from '@src/utils/Channel';
 
 type EmbedField = {
   name: string;
@@ -26,100 +26,112 @@ const embedTemplate = {
 export class MusicDisplay {
   constructor(
     private music: Music,
-    private client: IOEClient
+    private client: IOEClient,
+    // Map <GuildID, MessageID>
+    private displayMessagesIDs: Map<string, string> = new Map()
   ) {}
   async subscribeToEvents() {
     this.music.queue.on('setGuildQueue', async guildId => {
-      this.updateDisplayMessage(guildId);
+      this.updateMessage(guildId);
     });
   }
-  async sendDisplayMessage(channel: TextChannel, guildId: string) {
-    const msg = this.music.playerDisplayMessages.get(guildId);
-    if (msg && msg.deletable) msg.delete();
-    if (
-      (
-        await channel.messages.fetch({
-          cache: true,
-        })
-      ).size > 60
-    ) {
-      await channel.send('Канал содержит более 60 сообщений, выберите другой канал для музыки.')
-      return;
-    }
-    await deleteAllMessages(channel)
-    const embed = new EmbedBuilder(embedTemplate);
-    const displayMessage = await channel.send({
-      embeds: [embed],
+  async getMessage(guildID: string) {
+    const messageID = this.displayMessagesIDs.get(guildID);
+    if (!messageID) return null;
+    const channel = await this.music.getChannel(guildID);
+    if (!channel) return null;
+    const message = await channel?.messages.fetch({
+      message: messageID,
     });
-    this.music.playerDisplayMessages.set(guildId, displayMessage);
-    this.updateDisplayMessage(guildId);
-    await this.subscribeToEvents();
+    return message;
   }
-
-  async updateDisplayMessage(guildId: string) {
-    const msg = this.music.playerDisplayMessages.get(guildId);
-    if (!msg || !msg.editable) {
-      this.music.channels.forEach(
-        async (channelId: string, IguildId: string) => {
-          if (IguildId === guildId) {
-            const guild = await this.client.guilds.fetch(guildId);
-            if (!guild) return;
-            const channel = await guild.channels.fetch(channelId);
-
-            if (channel && channel.type === ChannelType.GuildText) {
-              await this.sendDisplayMessage(channel, guildId);
-              await this.updateDisplayMessage(guildId);
-            }
-          }
-        }
-      );
-      return;
-    }
-
-    const newEmbed = JSON.parse(JSON.stringify(embedTemplate));
-    const queue = await this.music.queue.getGuildQueue(guildId);
-    if (queue.length === 0) {
-      const empty = new EmbedBuilder();
-      empty.setImage(
-        'https://media.discordapp.net/attachments/716045712583950376/1233671796314869770/f57f4e47c4faab3ea7b357a85910a80b.gif?ex=662df1e4&is=662ca064&hm=cd0f5687bf9ac723fea38c86f2a282852ef532278e137d32cd8f0f522425bcf9&=&width=542&height=515'
-      );
-      empty.setTitle(
-        'Загрузите аудио/видео файл, предоставьте ссылку на YouTube/Spotify, или введите текстовый запрос для поиска на YouTube.'
-      );
-      const newMsg = await msg.edit({
-        embeds: [empty],
+  async sendMessage(guildID: string) {
+    try {
+      const channel = await this.music.getChannel(guildID);
+      if (!channel) return null;
+      if (
+        (
+          await channel.messages.fetch({
+            cache: true,
+          })
+        ).size > 60
+      ) {
+        await channel.send(
+          'Канал содержит более 60 сообщений, выберите другой канал для музыки.'
+        );
+        return null;
+      }
+      await deleteAllMessages(channel);
+      const embed = new EmbedBuilder(embedTemplate);
+      const displayMessage = await channel.send({
+        embeds: [embed],
       });
-      this.music.playerDisplayMessages.set(guildId, newMsg);
-      return;
+      this.displayMessagesIDs.set(channel.guildId, displayMessage.id);
+      this.updateMessage(channel.guildId);
+      await this.subscribeToEvents();
+      return displayMessage;
+    } catch (e) {
+      this.music.log('MusicDisplay error at sendMessage:', e);
+      return null;
     }
-    for (let i = 0; i < queue.length; i += 1) {
-      const song = queue[i];
-      if (!song) break;
-      if (i === 0) {
-        newEmbed.title = `[${song.duration}] ${song.title}`;
-        if (song.repeat) newEmbed.title = `🔁 ${newEmbed.title}`;
+  }
 
-        newEmbed.url = song.link;
-        // newEmbed.image.url = song.thumbnail;
+  async updateMessage(guildId: string) {
+    try {
+      let msg = await this.getMessage(guildId);
+      if (!msg || !msg.editable) {
+        msg = await this.sendMessage(guildId);
       }
-      if (i < 11 && i > 0) {
-        newEmbed.description += `${i}. **[[${song.duration}] ${song.title}](${song.link})** \n`;
-      } else if (i >= 11) {
-        newEmbed.fields[0] = {
-          name: '\u200B',
-          value: '\u200B',
-          inline: true,
-        };
-        newEmbed.fields[0].value = ` ...Еще ${queue.length - i}`;
-        break;
+      if (!msg) return null;
+      const newEmbed = JSON.parse(JSON.stringify(embedTemplate));
+      const queue = await this.music.queue.getGuildQueue(guildId);
+      if (queue.length === 0) {
+        const empty = new EmbedBuilder();
+        empty.setImage(
+          'https://media.discordapp.net/attachments/716045712583950376/1233671796314869770/f57f4e47c4faab3ea7b357a85910a80b.gif?ex=662df1e4&is=662ca064&hm=cd0f5687bf9ac723fea38c86f2a282852ef532278e137d32cd8f0f522425bcf9&=&width=542&height=515'
+        );
+        empty.setTitle(
+          'Загрузите аудио/видео файл, предоставьте ссылку на YouTube/Spotify, или введите текстовый запрос для поиска на YouTube.'
+        );
+        const newMsg = await msg.edit({
+          embeds: [empty],
+        });
+        this.displayMessagesIDs.set(guildId, newMsg.id);
+        return newMsg;
       }
+      for (let i = 0; i < queue.length; i += 1) {
+        const song = queue[i];
+        if (!song) break;
+        if (i === 0) {
+          newEmbed.title = `[${song.duration}] ${song.title}`;
+          if (song.repeat) newEmbed.title = `🔁 ${newEmbed.title}`;
+
+          newEmbed.url = song.link;
+          // newEmbed.image.url = song.thumbnail;
+        }
+        if (i < 11 && i > 0) {
+          newEmbed.description += `${i}. **[[${song.duration}] ${song.title}](${song.link})** \n`;
+        } else if (i >= 11) {
+          newEmbed.fields[0] = {
+            name: '\u200B',
+            value: '\u200B',
+            inline: true,
+          };
+          newEmbed.fields[0].value = ` ...Еще ${queue.length - i}`;
+          break;
+        }
+      }
+
+      const newMsg = await msg.edit({
+        embeds: [newEmbed],
+      });
+
+      this.displayMessagesIDs.set(guildId, newMsg.id);
+      return newMsg
+    } catch (e) {
+      this.music.log('MusicDisplay error at updateMessage:', e);
+      return null
     }
-
-    const newMsg = await msg.edit({
-      embeds: [newEmbed],
-    });
-
-    this.music.playerDisplayMessages.set(guildId, newMsg);
   }
 }
 

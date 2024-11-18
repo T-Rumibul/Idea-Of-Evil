@@ -49,7 +49,7 @@ export class MusicControls {
 
   async initControlls(guildId: string) {
     try {
-      const msg = this.music.playerDisplayMessages.get(guildId);
+      const msg = await this.music.display.getMessage(guildId)
       if (!msg) return;
 
       msg?.channel.send({

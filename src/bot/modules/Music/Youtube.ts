@@ -162,7 +162,7 @@ export class MusicYouTube {
               resolve(4);
               removeMsgAndCollector(timeoutId);
               break;
-            case 'с' || 'cancel' || '\u0446':
+            case 'c':
               resolve(-1);
               removeMsgAndCollector(timeoutId);
               break;

@@ -68,28 +68,23 @@ async function execute(
         interaction.options.getChannel('channel', true)
       );
       if (channel.type !== ChannelType.GuildText) return;
-      if (
-        (
-          await channel.messages.fetch({
-            cache: true,
-          })
-        ).size > 60
-      ) {
-        await interaction.reply('Выбраный канал содержит более 60 сообщений, пожалуйста выберите другой канал.')
-       return;
-      }
-      await interaction.deferReply()
-      await deleteAllMessages(channel)
+
+      await interaction.deferReply({ephemeral: true})
       const {guildId} = interaction;
       if (!guildId) return;
-      await client.IOE.externalDB.guild.setMusicChannel(guildId, channel.id);
-      await interaction.reply(
+      
+     const result = await client.modules.music.setChannel(guildId, channel.id);
+     if(!result) await interaction.editReply(
+        `Ошибка при выборе канала для плеера`
+      ); 
+      else await interaction.editReply(
         `Новый канал для плеера: <#${(
           await client.IOE.externalDB.guild.getMusicChannels()
         ).get(guildId)}>`
       );
-      await client.modules.music.display.sendDisplayMessage(channel, guildId);
-      await client.modules.music.updateMusicChannels();
+      
+
+      
     }
   } catch (e) {
     client.log('COMMAND', 'Error:', e);

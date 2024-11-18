@@ -1,6 +1,12 @@
 import Base from '@bot/core/Base';
 import type {IOEClient} from '@bot/core/IOEClient';
-import {Message, ChannelType, Interaction, ButtonInteraction} from 'discord.js';
+import {
+  Message,
+  ChannelType,
+  Interaction,
+  ButtonInteraction,
+  TextChannel,
+} from 'discord.js';
 
 import dotenv from 'dotenv';
 
@@ -30,13 +36,6 @@ export class Music extends Base {
    * @type {Map<string, string>}
    */
   channels!: Map<string, string>;
-
-  /**
-   * Map of guild IDs and player display messages
-   *
-   * @type {Map<string, Message>}
-   */
-  playerDisplayMessages: Map<string, Message> = new Map();
 
   /**
    * Map of blocked user IDs
@@ -115,7 +114,7 @@ export class Music extends Base {
         if (!channel || channel.type !== ChannelType.GuildText) return;
 
         // Send display message
-        await this.display.sendDisplayMessage(channel, guildId);
+        await this.display.sendMessage(guildId);
         //Create buttons
         await this.controls.initControlls(guildId);
       });
@@ -145,6 +144,39 @@ export class Music extends Base {
       this.log('Init Error:', error);
     }
   }
+  /**
+   * Fetches coresponding music channel.
+   *
+   * @returns {Promise<TextChannel>}
+   */
+  async getChannel(guildID: string) {
+    try {
+      const musicChannelID = this.channels.get(guildID);
+      if (!musicChannelID) return null;
+      const guild = await this.client.guilds.fetch({
+        guild: guildID,
+      });
+      const channel = await guild.channels.fetch(musicChannelID);
+      return <TextChannel>channel;
+    } catch (e) {
+      this.log('Error at getChannel:', e);
+      return null;
+    }
+  }
+  async setChannel(guildID: string, channelID: string) {
+    const guild = await this.client.guilds.fetch({
+      guild: guildID,
+    });
+    if (!guild) return null;
+    const channel = await guild.channels.fetch(channelID);
+    if (!channel) return null;
+    this.channels.set(guildID, channelID);
+    await this.client.IOE.externalDB.guild.setMusicChannel(guildID, channelID)
+    await this.display.sendMessage(guildID);
+    await this.controls.initControlls(guildID);
+
+    return channelID;
+  }
 
   /**
    * Updates the music channels by fetching them from the external database.
@@ -173,7 +205,7 @@ export class Music extends Base {
   async play(message: Message) {
     // Check if the message is sent from a text channel
     if (message.channel.type !== ChannelType.GuildText) return;
-    if(this.trackSelection) return;
+    if (this.trackSelection) return;
     try {
       // Check if the message is sent from the music channel
       if (message.channelId !== this.channels.get(message.guildId!)) return;

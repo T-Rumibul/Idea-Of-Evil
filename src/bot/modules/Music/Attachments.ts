@@ -1,10 +1,6 @@
 import type IOEClient from '@bot/core/IOEClient';
 import type {Music} from '../Music';
 import type { Message } from 'discord.js';
-import got from 'got'
-import ffmpeg from 'fluent-ffmpeg';
-import { PassThrough, Writable } from 'stream';
-import path from 'path';
 
 export class MusicAttachments {
     constructor(
