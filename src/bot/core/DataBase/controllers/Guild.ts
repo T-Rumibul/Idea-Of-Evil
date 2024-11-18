@@ -81,7 +81,7 @@ export default class GuildController extends Base {
     try {
       const guildData = await this.get(guildId);
       guildData.welcomeChannel = channelId;
-      GuildModel.updateOne({guildID: guildId}, guildData)
+      await GuildModel.updateOne({guildID: guildId}, guildData)
       
     } catch (e) {
       this.log('', e);

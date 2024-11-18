@@ -24,7 +24,7 @@ export class Welcomer extends Base {
 
   async sendWelcomeMesssageTrigger(member: GuildMember, client: IOEClient) {
     if (this.disabled) return;
-    const channelId = await client.IOE.externalDB.guild.getWelcomeChannel(
+    const channelId = await client.IOE.DB.guild.getWelcomeChannel(
       member.guild.id
     );
     const channel = member.guild.channels.cache.get(channelId);

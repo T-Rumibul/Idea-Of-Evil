@@ -84,7 +84,7 @@ export class MusicPlayer extends EventEmitter {
       player.stop(true);
       const connection = getVoiceConnection(guildId);
       if (connection) connection.destroy();
-      this.music.queue.clearQueue(guildId);
+      this.music.queue.clear(guildId);
       this.emit('stop', guildId);
     } catch (e) {
       this.music.log('Player:', e);
@@ -93,7 +93,7 @@ export class MusicPlayer extends EventEmitter {
 
   private async play(player: AudioPlayer, guildId: string) {
     try {
-      const queue = await this.music.queue.getGuildQueue(guildId);
+      const queue = await this.music.queue.get(guildId);
 
       if (queue.length === 0) return false;
 

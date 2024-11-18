@@ -4,8 +4,7 @@ import {Music} from '@bot/modules/Music';
 import {LogManager} from '@src/utils/Logger';
 import {MemberProfiles} from '@bot/modules/MemberProfiles';
 import {SlashCommands} from '@bot/modules/SlashCommands';
-import {db} from './DataBase/external';
-import dbLocal from './DataBase/local';
+import {db} from './DataBase/';
 import {Utils} from './Utils';
 import {IOEClientEvents} from './Client/Events';
 
@@ -13,8 +12,7 @@ export class IOEClient extends Client {
   private logManager = new LogManager();
 
   public IOE = {
-    externalDB: db(this),
-    localDB: dbLocal(),
+    DB: db(this),
     utils: new Utils(this),
   };
 

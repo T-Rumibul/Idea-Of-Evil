@@ -49,7 +49,7 @@ export class SlashCommands extends Base {
     this.client.on('interactionCreate', async (interaction: Interaction) => {
       if (!interaction.isChatInputCommand()) return;
       const musicChannels =
-        await this.client.IOE.externalDB.guild.getMusicChannels();
+        await this.client.IOE.DB.guild.getMusicChannels();
       if (
         interaction.channelId === musicChannels.get(interaction.guildId || '')
       )

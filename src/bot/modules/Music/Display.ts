@@ -84,7 +84,7 @@ export class MusicDisplay {
       }
       if (!msg) return null;
       const newEmbed = JSON.parse(JSON.stringify(embedTemplate));
-      const queue = await this.music.queue.getGuildQueue(guildId);
+      const queue = await this.music.queue.get(guildId);
       if (queue.length === 0) {
         const empty = new EmbedBuilder();
         empty.setImage(

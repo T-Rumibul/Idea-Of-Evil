@@ -96,7 +96,7 @@ export class Music extends Base {
       this.log('Initialization.');
 
       // Get music channels from externalDB
-      this.channels = await this.client.IOE.externalDB.guild.getMusicChannels();
+      this.channels = await this.client.IOE.DB.guild.getMusicChannels();
       this.log('Music Channels:', this.channels);
 
       // Loop through each music channel and display message
@@ -171,7 +171,7 @@ export class Music extends Base {
     const channel = await guild.channels.fetch(channelID);
     if (!channel) return null;
     this.channels.set(guildID, channelID);
-    await this.client.IOE.externalDB.guild.setMusicChannel(guildID, channelID)
+    await this.client.IOE.DB.guild.setMusicChannel(guildID, channelID)
     await this.display.sendMessage(guildID);
     await this.controls.initControlls(guildID);
 
@@ -185,7 +185,7 @@ export class Music extends Base {
    */
   async updateMusicChannels() {
     this.log('Update music channels:', this.channels);
-    this.channels = await this.client.IOE.externalDB.guild.getMusicChannels();
+    this.channels = await this.client.IOE.DB.guild.getMusicChannels();
   }
 
   async interaction(interaction: Interaction) {
@@ -247,7 +247,7 @@ export class Music extends Base {
       }
 
       // Add the song to the queue
-      await this.queue.addToQueue(song, guildId!);
+      await this.queue.add(song, guildId!);
 
       // If the player is already playing, return
       if (await this.player.isPlaying(guildId!)) {

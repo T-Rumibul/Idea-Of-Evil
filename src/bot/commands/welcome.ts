@@ -56,9 +56,9 @@ async function execute(
       if (channel.type !== ChannelType.GuildText) return;
       const {guildId} = interaction;
       if (!guildId) return;
-      await client.IOE.externalDB.guild.setWelcomeChannel(guildId, channel.id);
+      await client.IOE.DB.guild.setWelcomeChannel(guildId, channel.id);
       await interaction.reply(
-        `New channel for welcome messages: <#${await client.IOE.externalDB.guild.getWelcomeChannel(
+        `New channel for welcome messages: <#${await client.IOE.DB.guild.getWelcomeChannel(
           guildId
         )}>`
       );

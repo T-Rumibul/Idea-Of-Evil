@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-import type {IOEClient} from '../../IOEClient';
+import type {IOEClient} from '../IOEClient';
 import GuildController from './controllers/Guild';
 import ProfileController from './controllers/Profile';
-import Base from '../../Base';
+import Base from '../Base';
 
 dotenv.config();
 

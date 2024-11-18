@@ -123,7 +123,7 @@ export class MusicControls {
         // Repeat
         case 'repeat':
           this.setInteractionTimeout(interaction, 1500);
-          const enabled = await this.music.queue.toggleRepeatFirst(guildId);
+          const enabled = await this.music.queue.toggleRepeat(guildId);
           repeat.setStyle(enabled ? ButtonStyle.Success : ButtonStyle.Primary);
           interaction.update({
             components: [row],
@@ -132,7 +132,7 @@ export class MusicControls {
 
         case 'shuffle':
           this.setInteractionTimeout(interaction, 1000);
-          this.music.queue.shuffleGuildQueue(guildId);
+          this.music.queue.shuffle(guildId);
           break;
 
         default:

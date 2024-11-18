@@ -5,14 +5,14 @@ export async function Emit(message: Message, client: IOEClient) {
   try {
     if (message.author.bot) return;
     if (
-      (await client.IOE.externalDB.checkBlackListUser(message.author.id)) !==
+      (await client.IOE.DB.checkBlackListUser(message.author.id)) !==
       null
     ) {
       if (message.channel.type !== ChannelType.GuildText) return;
       const msg = await message.channel.send(
         `<@${
           message.author.id
-        }> Вы внесены в черный список и не можете использовать команды этого бота. \n Причина: ${await client.IOE.externalDB.checkBlackListUser(
+        }> Вы внесены в черный список и не можете использовать команды этого бота. \n Причина: ${await client.IOE.DB.checkBlackListUser(
           message.author.id
         )}`
       );

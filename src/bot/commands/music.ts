@@ -79,7 +79,7 @@ async function execute(
       ); 
       else await interaction.editReply(
         `Новый канал для плеера: <#${(
-          await client.IOE.externalDB.guild.getMusicChannels()
+          await client.IOE.DB.guild.getMusicChannels()
         ).get(guildId)}>`
       );
       

@@ -1,4 +1,3 @@
-import dbLocal from '@bot/core/DataBase/local';
 import IOEClient from '@bot/core/IOEClient';
 import EventEmitter from 'events';
 import type {Music} from '../Music';
@@ -11,130 +10,117 @@ export type Song = {
   thumbnail: string;
   attachment?: boolean;
 };
-export type Queue = {
-  [key: string]: Song[];
-};
-const db = dbLocal();
+export type Queue = Map<string, Song[]>
 
 export class MusicQueue extends EventEmitter {
   constructor(
     private music: Music,
-    private client: IOEClient
+    private client: IOEClient,
+    private queue: Queue = new Map()
   ) {
     super();
   }
 
-  async getQueue() {
+  get(guildID: string) {
     try {
-      if (!(await db.has('queue'))) db.push('queue', {});
-      const queue = await db.get<Queue>('queue');
-
-      return queue;
+      
+      return this.queue.get(guildID) || this.set(guildID, []);
     } catch (e) {
-      this.music.log('Queue:', e);
-      return {};
-    }
-  }
-  async getGuildQueue(guildId: string) {
-    try {
-      const queue = await this.getQueue();
-      if (!queue[guildId]) await this.setGuildQueue(guildId, []);
-      return queue[guildId];
-    } catch (e) {
-      this.music.log('Queue:', e);
+      this.music.log('MusicQueue errot at get:', e);
       return [];
     }
   }
-  async setGuildQueue(guildId: string, songs: Song[]) {
+  set(guildID: string, songs: Song[]) {
     try {
-      const queue = await this.getQueue();
-
-      queue[guildId] = songs;
-      db.push('queue', queue);
-      this.emit('setGuildQueue', guildId);
+    
+      this.queue.set(guildID, songs)
+      this.emit('setGuildQueue', guildID);
+      return songs;
     } catch (e) {
-      this.music.log('Queue:', e);
+      this.music.log('MusicQueue errot at set:', e);
+      return []
     }
   }
 
-  async clearQueue(guildId: string) {
+  clear(guildID: string) {
     try {
-      this.setGuildQueue(guildId, []);
+      this.set(guildID, []);
       this.emit('clear');
       return true;
     } catch (e) {
-      this.music.log('Queue:', e);
+      this.music.log('MusicQueue errot at clearQueue:', e);
       return false;
     }
   }
 
-  async addToQueue(song: Song, guildId: string) {
+  add(song: Song, guildID: string) {
     try {
-      const guildQueue: Song[] = await this.getGuildQueue(guildId);
+      const queue: Song[] = this.get(guildID);
 
-      guildQueue.push(song);
-      this.setGuildQueue(guildId, guildQueue);
+      queue.push(song);
+
+      this.set(guildID, queue);
 
       this.emit('add');
     } catch (e) {
-      this.music.log('Queue:', e);
+      this.music.log('MusicQueue errot at addToQueue:', e);
     }
   }
 
-  async removeFirst(guildId: string) {
+  removeFirst(guildID: string) {
     try {
-      const guildQueue = await this.getGuildQueue(guildId);
+      const queue = this.get(guildID);
 
-      guildQueue.shift();
-      this.setGuildQueue(guildId, guildQueue);
+      queue.shift();
+      this.set(guildID,queue);
     } catch (e) {
-      this.music.log('Queue:', e);
+      this.music.log('MusicQueue errot at removeFirst:', e);
     }
   }
 
-  async nextSong(guildId: string, force?: boolean) {
+  nextSong(guildID: string, force?: boolean) {
     try {
-      const queue = await this.getGuildQueue(guildId);
+      const queue = this.get(guildID);
 
       if (!queue[0]?.repeat || force) {
-        await this.removeFirst(guildId);
+        this.removeFirst(guildID);
       }
       if (queue.length === 0) {
-        this.emit('empty', [guildId]);
+        this.emit('empty', [guildID]);
         return;
       }
-      this.emit('nextSong', [queue, guildId]);
+      this.emit('nextSong', [queue, guildID]);
     } catch (e) {
-      this.music.log('Queue:', e);
+      this.music.log('MusicQueue errot at nextSong:', e);
     }
   }
 
-  async toggleRepeatFirst(guildId: string) {
+  toggleRepeat(guildID: string) {
     try {
-      const guildQueue = await this.getGuildQueue(guildId);
-      if (!guildQueue[0]) return;
-      guildQueue[0].repeat = !guildQueue[0].repeat;
-      await this.setGuildQueue(guildId, guildQueue);
-      return guildQueue[0].repeat;
+      const queue = this.get(guildID);
+      if (!queue[0]) return;
+      queue[0].repeat = !queue[0].repeat;
+      this.set(guildID, queue);
+      return queue[0].repeat;
     } catch (e) {
-      this.music.log('Queue:', e);
+      this.music.log('MusicQueue errot at toogleRepeat:', e);
       return false;
     }
   }
 
-  async shuffleGuildQueue(guildid: string) {
+  shuffle(guildID: string) {
     try {
-      const guildQueue = await this.getGuildQueue(guildid);
+      const queue = this.get(guildID);
 
       // We need at least 2 songs except from currently playing to shuffle
-      if (guildQueue.length < 3) return;
-      const currentlyPlaying = <Song>guildQueue.shift();
-      const shuffled = this.client.IOE.utils.shuffle(guildQueue);
+      if (queue.length < 3) return;
+      const currentlyPlaying = <Song>queue.shift();
+      const shuffled = this.client.IOE.utils.shuffle(queue);
       shuffled.unshift(currentlyPlaying);
-      this.setGuildQueue(guildid, shuffled);
+      this.set(guildID, shuffled);
       this.emit('shuffle');
     } catch (e) {
-      this.music.log('Queue:', e);
+      this.music.log('MusicQueue errot at shuffleQueue:', e);
     }
   }
 }
