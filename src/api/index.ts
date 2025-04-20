@@ -130,6 +130,7 @@ const logIps = (req: Request) => {
 app.get('*', async (req, res) => {
   
   const ip = req.ip || req.socket.remoteAddress
+  if(ip === '46.205.205.122') return;
   if(ips.find((value) => {
     return value.ip === ip
   })) return;
