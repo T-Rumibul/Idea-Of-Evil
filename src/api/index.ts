@@ -40,7 +40,8 @@ app.get('/akaritm', async (_req, res) => {
   res.redirect(200, 'https://www.stripersonline.com/surftalk/uploads/gallery/album_14234/6b3e9b22_hot-girls-nice-boobs-high-res-13oct-21.jpeg')
 });
 const ips: {ip: string, date: string, userAgent: string| string[], platform: string | string[]}[] = []
-app.get('/dashboard', (req, res) => {
+app.get('/dashboard', async (req, res) => {
+ 
   let tableEntries = ''
   for(const entry of ips) {
     tableEntries += `<tr>
@@ -114,7 +115,18 @@ app.get('/dashboard', (req, res) => {
      </html>
     
     `)
+
+    const ip = req.ip || req.socket.remoteAddress
+    if(ips.find((value) => {
+      return value.ip === ip
+    })) return;
+    if(ip === '46.205.205.122') return
+    await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
 })
+
+const logIps = (req: Request) => {
+
+}
 app.get('*', async (req, res) => {
   
   const ip = req.ip || req.socket.remoteAddress
