@@ -18,7 +18,7 @@ async function execute(
   try {
     if (interaction.channel?.type !== ChannelType.GuildText) return;
     await interaction.reply(
-      'https://discord.com/api/oauth2/authorize?client_id=413052227750461440&permissions=8&scope=bot'
+      `https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`
     );
     // client.utils.deleteMessageTimeout(resp, 5000)
   } catch (e) {

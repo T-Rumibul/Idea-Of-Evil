@@ -11,7 +11,7 @@ import {
   StreamType,
 } from '@discordjs/voice';
 import EventEmitter from 'events';
-
+import { Stream } from 'stream';
 import type {Music} from '../Music';
 import ytdl from './Ytdl';
 
@@ -107,16 +107,19 @@ export class MusicPlayer extends EventEmitter {
           inlineVolume: true,
         });
       } else {
-        stream = await ytdl.stream(url, {
-          discordPlayerCompatibility: true,
-        });
-        resource = createAudioResource(stream.stream, {
-          inputType: stream.type,
+      
+        //stream = await yt_stream.getStream(new URL(url).searchParams.get('v') || "", "AUDIO", "HIGHEST")
+        if(!stream) return;
+
+        resource = createAudioResource(stream, {
+          inputType: StreamType.Arbitrary,
+          
+          
         });
       }
 
       player.play(resource);
-
+      
       player.unpause();
       return true;
     } catch (e) {

