@@ -17,28 +17,9 @@ app.use(
   })
 );
 app.use(router);
-app.set('trust proxy', true)
 app.get('/', async (_req, res) => {
 });
-app.get('/boobs.png', async (_req, res) => {
-  logger.log('Recived get request');
-  const ip = _req.ip || _req.socket.remoteAddress
-  await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
-  res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
-});
-app.get('/boobs', async (_req, res) => {
-  logger.log('Recived get request');
-  const ip = _req.ip || _req.socket.remoteAddress
-  await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
-  res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
-});
-app.get('/akaritm', async (_req, res) => {
-  logger.log('Recived get request');
-  const ip = _req.ip || _req.socket.remoteAddress
-  await (await (await client.guilds.fetch('408654092467044352')).members.fetch('231449604711907328')).send(`User IP: ${ip}`)
-  //res.sendFile(path.resolve(__dirname, 'assets', '123.png'))
-  res.redirect(200, 'https://www.stripersonline.com/surftalk/uploads/gallery/album_14234/6b3e9b22_hot-girls-nice-boobs-high-res-13oct-21.jpeg')
-});
+
 const ips: {ip: string, date: string, userAgent: string| string[], platform: string | string[]}[] = []
 app.get('/dashboard', async (req, res) => {
  
